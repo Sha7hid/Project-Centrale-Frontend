@@ -1,9 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { useCallback } from "react";
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+SplashScreen.preventAutoHideAsync();
+
 
 export default function App() {
+  const [isLoaded] = useFonts({
+    "league": require("./assets/fonts/LeagueSpartan-SemiBold.ttf"),
+  });
+  const handleOnLayout = useCallback(async () => {
+    if (isLoaded) {
+      await SplashScreen.hideAsync(); //hide the splashscreen
+    }
+  }, [isLoaded]);
+  if (!isLoaded) {
+    return null;
+  }
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={handleOnLayout} >
       <View style={styles.div}>
       <Text style={styles.textstyles}>Project Centrale</Text>
       </View>
@@ -20,9 +36,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textstyles:{
-fontWeight:'bold',
 color:"white",
-fontFamily:"LeagueSpartanSemiBold"
+fontFamily:"league",
+fontSize:50,
   },
   div:{
 backgroundColor:"#E652FF",
