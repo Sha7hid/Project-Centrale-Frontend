@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function User({navigation}) {
+export default function Profile({navigation}) {
   const [studentData, setStudentData] = useState(null);
 
   useEffect(() => {
@@ -24,31 +24,13 @@ export default function User({navigation}) {
       {/* Render your component with studentData */}
       {studentData && (
         <>
-          <View>
-            <Text style={styles.textstyles}>Project</Text>
-            <Text style={styles.textstyles}>Centrale</Text>
-            <View style={styles.cardlayout}>
-              <Pressable>
-                <View style={styles.card}>
-                  <Text style={styles.cardtext}>Choose</Text>
-                  <Text style={styles.cardtext}>Topic</Text>
-                </View>
-              </Pressable>
-              <View style={styles.space}></View>
-              <Pressable>
-                <View style={styles.card}>
-                  <Text style={styles.cardtext}>Project</Text>
-                  <Text style={styles.cardtext}>Status</Text>
-                </View>
-              </Pressable>
-            </View>
+          <View style={styles.div}>
+            <Text style={styles.textstyles}>Profile</Text>
+        
+<Text style={styles.textstyles}>{studentData.name}</Text>
+<Text style={styles.textstyles}>{studentData.email}</Text>
             <View style={styles.spacetop}></View>
-            <Pressable>
-              <View style={styles.card2}>
-                <Text style={styles.cardtext}>Upload</Text>
-                <Text style={styles.cardtext}>Documents</Text>
-              </View>
-            </Pressable>
+            <Button  onPress={() => navigation.navigate('user')} title="Home" color={'#000'}/>
           </View>
         </>
       )}

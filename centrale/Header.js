@@ -1,7 +1,9 @@
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const Header = (props) => {
+  const navigation = useNavigation();
   return (
     <View style={{ flexDirection: "row", margin: 15 }}>
       {props.name == "1" ? (
@@ -10,10 +12,15 @@ const Header = (props) => {
             style={{ height: 45, width: 45,marginLeft:150}}
             source={require("./assets/search.png")}
           />
-           <Image
+          <Pressable
+          onPress={() => navigation.navigate('profile')}
+          >
+          <Image
             style={{ height: 45, width: 45,marginLeft:30}}
             source={require("./assets/profile.png")}
           />
+          </Pressable>
+           
         </>
       ) : (
         <Text></Text>

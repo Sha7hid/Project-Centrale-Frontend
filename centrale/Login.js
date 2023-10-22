@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useCallback } from "react";
 import { useFonts } from "expo-font";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Login({navigation}) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
   const [isLoaded] = useFonts({
     league: require("./assets/fonts/LeagueSpartan-Bold.ttf"),
     kanit: require("./assets/fonts/Kanit-SemiBold.ttf"),
@@ -15,6 +19,34 @@ export default function Login({navigation}) {
   if (!isLoaded) {
     return null;
   }
+  const handleSubmit = () => {
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `http://192.168.1.4:8080/student/email/${email}`;
+  
+    fetch(apiUrl, {
+      method: 'GET', // Assuming you want to fetch student data based on email
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(studentData => {
+         AsyncStorage.setItem('studentData', JSON.stringify(studentData));
+        // Check if a student with the provided email exists
+        if (studentData && studentData.password === password) {
+          // Password matches, navigate to the "user" page
+          navigation.navigate('user');
+        } else {
+          // Password doesn't match, you can show an error message or handle it as needed
+          setError('Invalid email or password');
+        }
+      })
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+  };
+
   return (
     <View style={styles.container}>
     <Text style={styles.welcome}>WELCOME</Text>
@@ -27,18 +59,23 @@ export default function Login({navigation}) {
         <TextInput
          style={styles.input}
          placeholder="Email"
+         onChangeText={text => setEmail(text)}
        />
         <TextInput
          style={styles.password}
          placeholder="Enter your Password"
+         onChangeText={text => setPassword(text)}
        />
     
        <View style={styles.space}></View>
          <Pressable style={styles.button}
-            onPress={() => navigation.navigate('user')}
+            onPress={handleSubmit}
            >
              <Text style={styles.buttontext}>Log In</Text>
            </Pressable>
+           {error && (
+        <Text style={styles.errorText}>{error}</Text>
+      )}
            <View style={styles.space}></View>
            <Text style={styles.buttontext}>Have an account? <Pressable 
             onPress={() => navigation.navigate('signup')}
@@ -112,5 +149,12 @@ export default function Login({navigation}) {
          fontWeight: 'bold',
          letterSpacing: 0.25,
          color: 'white',
+       },
+       errorText:{
+        marginTop:8,
+        fontSize:20,
+        color:'#FF0000',
+        fontWeight:'bold',
+        fontFamily:'kanit'
        }
 })
