@@ -45,6 +45,7 @@ export default function Signup({ navigation }) {
       />
       <View style={styles.space}></View>
         <Pressable style={styles.button}
+            onPress={() => navigation.navigate('user')}
           >
             <Text style={styles.buttontext}>Sign Up</Text>
           </Pressable>

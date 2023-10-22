@@ -1,7 +1,20 @@
 import React from 'react'
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-
+import { useCallback } from "react";
+import { useFonts } from "expo-font";
 export default function Login({navigation}) {
+  const [isLoaded] = useFonts({
+    league: require("./assets/fonts/LeagueSpartan-Bold.ttf"),
+    kanit: require("./assets/fonts/Kanit-SemiBold.ttf"),
+  });
+  const handleOnLayout = useCallback(async () => {
+    if (isLoaded) {
+      await SplashScreen.hideAsync(); //hide the splashscreen
+    }
+  }, [isLoaded]);
+  if (!isLoaded) {
+    return null;
+  }
   return (
     <View style={styles.container}>
     <Text style={styles.welcome}>WELCOME</Text>
@@ -22,6 +35,7 @@ export default function Login({navigation}) {
     
        <View style={styles.space}></View>
          <Pressable style={styles.button}
+            onPress={() => navigation.navigate('user')}
            >
              <Text style={styles.buttontext}>Log In</Text>
            </Pressable>
