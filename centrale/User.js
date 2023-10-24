@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function User({navigation}) {
+export default function User({ navigation }) {
   const [studentData, setStudentData] = useState(null);
 
   useEffect(() => {
@@ -27,28 +27,101 @@ export default function User({navigation}) {
           <View>
             <Text style={styles.textstyles}>Project</Text>
             <Text style={styles.textstyles}>Centrale</Text>
-            <View style={styles.cardlayout}>
-              <Pressable>
-                <View style={styles.card}>
-                  <Text style={styles.cardtext}>Choose</Text>
-                  <Text style={styles.cardtext}>Topic</Text>
+               {/* Data shown to students */}
+            {studentData.type === "student" && (
+              <>
+                <View style={styles.cardlayout}>
+                  <Pressable>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Choose</Text>
+                      <Text style={styles.cardtext}>Topic</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.space}></View>
+                  <Pressable>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Project</Text>
+                      <Text style={styles.cardtext}>Status</Text>
+                    </View>
+                  </Pressable>
                 </View>
-              </Pressable>
-              <View style={styles.space}></View>
-              <Pressable>
-                <View style={styles.card}>
-                  <Text style={styles.cardtext}>Project</Text>
-                  <Text style={styles.cardtext}>Status</Text>
+                <View style={styles.spacetop}></View>
+                <Pressable>
+                  <View style={styles.card2}>
+                    <Text style={styles.cardtext}>Upload</Text>
+                    <Text style={styles.cardtext}>Documents</Text>
+                  </View>
+                </Pressable>
+              </>
+            )}
+            {/* Data shown to teachers */}
+            {studentData.type === "teacher" && (
+              <>
+                <View style={styles.cardlayout}>
+                  <Pressable>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Choose</Text>
+                      <Text style={styles.cardtext}>Team</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.space}></View>
+                  <Pressable>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Guide</Text>
+                      <Text style={styles.cardtext}>meeting</Text>
+                    </View>
+                  </Pressable>
                 </View>
-              </Pressable>
-            </View>
-            <View style={styles.spacetop}></View>
-            <Pressable>
-              <View style={styles.card2}>
-                <Text style={styles.cardtext}>Upload</Text>
-                <Text style={styles.cardtext}>Documents</Text>
-              </View>
-            </Pressable>
+                <View style={styles.spacetop}></View>
+                <View style={styles.cardlayout}>
+                  <Pressable>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Upload</Text>
+                      <Text style={styles.cardtext}>Marks</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.space}></View>
+                  <Pressable>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Project</Text>
+                      <Text style={styles.cardtext}>Status</Text>
+                    </View>
+                  </Pressable>
+                </View>
+              </>
+            )}
+             {/* Data shown to teachers */}
+             {studentData.type === "admin" && (
+              <>
+                <View style={styles.cardlayoutadmin}>
+                  <Pressable>
+                    <View style={styles.cardadmin}>
+                      <Text style={styles.cardtext}>Users</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.spacetop}></View>
+                  <Pressable>
+                    <View style={styles.cardadmin}>
+                      <Text style={styles.cardtext}>Project</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.spacetop}></View>
+                  <Pressable>
+                    <View style={styles.cardadmin}>
+                      <Text style={styles.cardtext}>Team</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.spacetop}></View>
+                  <Pressable>
+                    <View style={styles.cardadmin}>
+                      <Text style={styles.cardtext}>Details</Text>
+                    </View>
+                  </Pressable>
+                </View>
+                
+               
+              </>
+            )}
           </View>
         </>
       )}
@@ -62,6 +135,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  cardlayoutadmin: {
+    marginTop: 45,
+    flexDirection: "col",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   card: {
     backgroundColor: "#fff",
     paddingLeft: 50,
@@ -71,8 +150,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     textAlign: "center",
   },
-  card2:{
-backgroundColor: "#fff",
+  cardadmin: {
+    backgroundColor: "#fff",
+    paddingLeft: 80,
+    paddingRight: 80,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 20,
+    textAlign: "center",
+  },
+  card2: {
+    backgroundColor: "#fff",
     paddingLeft: 50,
     paddingRight: 50,
     paddingTop: 80,
