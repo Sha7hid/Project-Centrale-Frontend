@@ -21,7 +21,7 @@ export default function Login({navigation}) {
   }
   const handleSubmit = () => {
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.100.180:8080/student/email/${email}`;
+    const apiUrl = `http://192.168.1.5:8080/student/email/${email}`;
   
     fetch(apiUrl, {
       method: 'GET', // Assuming you want to fetch student data based on email

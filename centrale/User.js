@@ -94,7 +94,7 @@ export default function User({ navigation }) {
              {studentData.type === "admin" && (
               <>
                 <View style={styles.cardlayoutadmin}>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('adminusers')}>
                     <View style={styles.cardadmin}>
                       <Text style={styles.cardtext}>Users</Text>
                     </View>

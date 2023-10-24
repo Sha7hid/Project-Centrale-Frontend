@@ -11,6 +11,8 @@ import Header from './Header';
 import User from './User';
 import { UserProvider } from './UserContext';
 import Profile from './Profile';
+import AdminUsers from './adminUsers';
+import AddNewUser from './AddNewUser';
 
 
 const Stack = createNativeStackNavigator();
@@ -59,6 +61,22 @@ function App() {
             height: 120,
           }
         }} component={Profile} />
+         <Stack.Screen name="adminusers"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AdminUsers} />
+         <Stack.Screen name="addnewuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddNewUser} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>
