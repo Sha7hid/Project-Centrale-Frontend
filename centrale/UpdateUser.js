@@ -12,7 +12,7 @@ export default function UpdateUser({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = `http://192.168.202.51:8080/student/update/id/${userId}`;
+    const apiUrl = `http://192.168.1.5:8080/user/update/id/${userId}`;
   
     const requestData = {
         name:name,

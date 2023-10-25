@@ -102,13 +102,13 @@ export default function User({ navigation }) {
                   <View style={styles.spacetop}></View>
                   <Pressable>
                     <View style={styles.cardadmin}>
-                      <Text style={styles.cardtext}>Project</Text>
+                      <Text style={styles.cardtext}>Team</Text>
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
                   <Pressable>
                     <View style={styles.cardadmin}>
-                      <Text style={styles.cardtext}>Team</Text>
+                      <Text style={styles.cardtext}>Project</Text>
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>

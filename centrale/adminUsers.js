@@ -10,7 +10,7 @@ export default function AdminUsers({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.202.51:8080/students`;
+ const apiUrl = `http://192.168.1.5:8080/users`;
   
  fetch(apiUrl)
    .then(response => response.json())
