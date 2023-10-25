@@ -1,29 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminUsers({navigation}) {
+export default function UpdateUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
-
-
-  useEffect(()=>{
- // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.202.51:8080/students`;
+  const [userId, setUserId] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [type, setType] = useState('');
+  const [password, setPassword] = useState('');
+  const [success,setSuccess] = useState(false);
+  const handleSubmit = () => {
+   
+    const apiUrl = `http://192.168.202.51:8080/student/update/id/${userId}`;
   
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setStudentsData(data))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-
-  },[]);
+    const requestData = {
+        name:name,
+      email: email,
+      password: password,
+      type:type
+    };
+  
+    fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+      .then(response => response.json())
+      .then(setSuccess(true))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+      console.log(studentData)
+  };
+  
   useEffect(() => {
-
-
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
       .then((data) => {
@@ -38,42 +52,21 @@ export default function AdminUsers({navigation}) {
   }, []);
 
   return (
-    <SafeAreaView>
-    <ScrollView>
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewuser')} style={styles.button2}>
-        <Text style={styles.text}>Add New User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteuser')} style={styles.button2}>
-        <Text style={styles.text}>Delete User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
-        <Text style={styles.text}>Update A User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-
-{studentsData?.map((data) =>(
-        <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >Name: {data.name}</Text>
-          <Text >Email: {data.email}</Text>
-          <Text >Password: {data.password}</Text>
-          <Text >Type:{data.type}</Text>
-          <View style={styles.spacetop}></View>
-        </View>
+        <Text style={styles.textstyles}>Enter Details of the User</Text>
         <View style={styles.spacetop}></View>
-        </>
-      ))}
-
-     
-      {/* Render your component with studentData */}
-   
+        <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
+     <TextInput style={styles.input} onChangeText={text => setEmail(text)} placeholder="email"/>
+     <TextInput style={styles.input} onChangeText={text => setPassword(text)} placeholder="password"/>
+     <TextInput style={styles.input} onChangeText={text => setType(text)} placeholder="type"/>
+     <View style={styles.spacetop}></View>
+     <Pressable onPress={handleSubmit} style={styles.button2}>
+        <Text style={styles.text}>Submit</Text>
+     </Pressable>
+     <View style={styles.spacetop}></View>
+     {success?<Text style={styles.text}>Successfully Updated User 🎊</Text>:<Text></Text>}
     </View>
-    </ScrollView>
-      </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -123,14 +116,32 @@ backgroundColor: "#fff",
   textstyles: {
     color: "white",
     fontFamily: "league",
-    fontSize: 40,
+    fontSize: 30,
     fontWeight: "500",
-    paddingRight: 140,
+    paddingRight: 10,
   },
   logo: {
     width: 210,
     height: 210,
     marginLeft: 120,
+  },
+  button2: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    elevation: 3,
+    backgroundColor: "#E652FF",
+  },
+  input: {
+    backgroundColor:'#fff',
+    textAlign:'center',
+    height: 50,
+    width:270,
+    margin: 12,
+    borderWidth: 1,
+    borderRadius:50,
   },
   div: {
     backgroundColor: "#E652FF",
@@ -149,24 +160,6 @@ backgroundColor: "#fff",
     borderRadius: 50,
     elevation: 3,
     backgroundColor: "#3734A9",
-  },
-  button2: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 50,
-    elevation: 3,
-    backgroundColor: "#E652FF",
-  },
-  buttonred:{
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 50,
-    elevation: 3,
-    backgroundColor: "#FF0000",
   },
   text: {
     fontSize: 16,

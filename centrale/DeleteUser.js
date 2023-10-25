@@ -2,69 +2,52 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AddNewUser({navigation}) {
+export default function DeleteUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [type, setType] = useState('');
-  const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
-  const handleSubmit = () => {
-   
-    const apiUrl = 'http://192.168.202.51:8080/students';
-  
-    const requestData = {
-        name:name,
-      email: email,
-      password: password,
-      type:type
-    };
-  
+  const handleDelete = async () => {
+    const apiUrl = `http://192.168.202.51:8080/student/delete/${userId}`;
+
     fetch(apiUrl, {
-      method: 'POST',
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
+      }
     })
       .then(response => response.json())
-      .then(studentData => setStudentData(studentData))
       .then(setSuccess(true))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-      console.log(studentData)
   };
   
-  useEffect(() => {
-    // Fetch student data from AsyncStorage when the component mounts
-    AsyncStorage.getItem("studentData")
-      .then((data) => {
-        if (data) {
-          const parsedData = JSON.parse(data);
-          setStudentData(parsedData);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching student data from AsyncStorage:", error);
-      });
-  }, []);
+//   useEffect(() => {
+//     // Fetch student data from AsyncStorage when the component mounts
+//     AsyncStorage.getItem("studentData")
+//       .then((data) => {
+//         if (data) {
+//           const parsedData = JSON.parse(data);
+//           setStudentData(parsedData);
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching student data from AsyncStorage:", error);
+//       });
+//   }, []);
 
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the User</Text>
+        <Text style={styles.textstyles}>Enter the ID of the User to delete</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setEmail(text)} placeholder="email"/>
-     <TextInput style={styles.input} onChangeText={text => setPassword(text)} placeholder="password"/>
-     <TextInput style={styles.input} onChangeText={text => setType(text)} placeholder="type"/>
+     <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={handleSubmit} style={styles.button2}>
+     <Pressable onPress={handleDelete} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added User 🎊</Text>:<Text></Text>}
+     {success?<Text style={styles.text}>Successfully Deleted User 🎊</Text>:<Text></Text>}
     </View>
   );
 }

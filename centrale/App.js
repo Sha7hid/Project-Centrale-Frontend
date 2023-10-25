@@ -13,6 +13,8 @@ import { UserProvider } from './UserContext';
 import Profile from './Profile';
 import AdminUsers from './adminUsers';
 import AddNewUser from './AddNewUser';
+import DeleteUser from './DeleteUser';
+import UpdateUser from './UpdateUser';
 
 
 const Stack = createNativeStackNavigator();
@@ -77,6 +79,22 @@ function App() {
             height: 120,
           }
         }} component={AddNewUser} />
+        <Stack.Screen name="deleteuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={DeleteUser} />
+         <Stack.Screen name="updateuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={UpdateUser} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>
