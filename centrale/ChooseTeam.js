@@ -13,12 +13,49 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function ChooseTeam({ navigation }) {
   const [teamsData, setTeamsData] = useState([]);
-
+  const [studentData,setStudentData] = useState(null)
+  const [teamId,setTeamId] = useState(null)
+  const [success,setSuccess] = useState(false);
+  const handleSubmit = () => {
+   
+    const apiUrl = `http://192.168.1.5:8080/team/teacherId/update/id/${teamId}`;
+  
+    const requestData = {
+       teacherId:studentData.id
+    };
+  
+    fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+      .then(response => response.json())
+      .then(setSuccess(true))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+     
+  };
+  useEffect(() => {
+    // Fetch student data from AsyncStorage when the component mounts
+    AsyncStorage.getItem("studentData")
+      .then((data) => {
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setStudentData(parsedData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching student data from AsyncStorage:", error);
+      });
+  }, []);
   useEffect(() => {
     // Fetch team data from your API
     fetchTeamsData();
   }, []);
-
   const fetchTeamsData = async () => {
     // Replace the URL with your actual API endpoint
     const apiUrl = `http://192.168.1.5:8080/teams`;
@@ -62,13 +99,18 @@ export default function ChooseTeam({ navigation }) {
       <ScrollView>
         <View style={styles.container}>
             <Text style={styles.textstyles}>Enter your Team Id</Text>
-            <TextInput style={styles.input} placeholder="Team ID"/>
-            <Pressable style={styles.button2}>
+            <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="Team ID"/>
+            <Pressable style={styles.button2} onPress={handleSubmit}>
                 <Text style={styles.text}>Submit</Text>
             </Pressable>
+           
+            {success?<Text style={styles.text}>Successfully Choosed Your Team🎊</Text>:<Text></Text>}
             <View style={styles.spacetop}></View>
+            <Text style={styles.text}>look through to see if you have already </Text>
+            <Text style={styles.text}>choosed a team</Text>
           {teamsData.map((team) => (
             <>
+             <View style={styles.spacetop}></View>
               <View key={team.id} style={styles.card}>
                 <Text>Team ID: {team.id}</Text>
                 <View style={styles.spacetop}></View>
@@ -80,6 +122,8 @@ export default function ChooseTeam({ navigation }) {
                     </Text>
                   </View>
                 ))}
+                 <View style={styles.spacetop}></View>
+                {team.teacherId===studentData.id?<Text>Teacher Name: {studentData.name}</Text>:<Text>TeacherID :{team.teacherId}</Text>}
               </View>
               <View style={styles.spacetop}></View>
             </>

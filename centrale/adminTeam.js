@@ -61,6 +61,7 @@ export default function AdminTeam({navigation}) {
           <Text >StudentID 1: {data.studentId1}</Text>
           <Text >StudentID 2: {data.studentId2}</Text>
           <Text >StudentID 3:{data.studentId3}</Text>
+         {data.teacherId? <Text>TeacherID : {data.teacherId}</Text>:<Text></Text>}
          
         </View>
         <View style={styles.spacetop}></View>

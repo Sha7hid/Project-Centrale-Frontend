@@ -9,6 +9,7 @@ export default function UpdateTeam({navigation}) {
   const [studentId1, setStudentId1] = useState('');
   const [studentId2, setStudentId2] = useState('');
   const [studentId3, setStudentId3] = useState('');
+  const [teacherId, setTeacherId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
@@ -18,7 +19,8 @@ export default function UpdateTeam({navigation}) {
         name:name,
         studentId1:studentId1,
         studentId2:studentId2,
-        studentId3:studentId3
+        studentId3:studentId3,
+        teacherId:teacherId
     };
   
     fetch(apiUrl, {
@@ -60,6 +62,7 @@ export default function UpdateTeam({navigation}) {
      <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
      <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
      <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
+     <TextInput style={styles.input} onChangeText={text => setTeacherId(text)} placeholder="teacherId"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
