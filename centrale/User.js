@@ -58,7 +58,7 @@ export default function User({ navigation }) {
             {studentData.type === "teacher" && (
               <>
                 <View style={styles.cardlayout}>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('chooseteam')}>
                     <View style={styles.card}>
                       <Text style={styles.cardtext}>Choose</Text>
                       <Text style={styles.cardtext}>Team</Text>
@@ -100,7 +100,7 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('adminteam')}>
                     <View style={styles.cardadmin}>
                       <Text style={styles.cardtext}>Team</Text>
                     </View>

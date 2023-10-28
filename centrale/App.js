@@ -15,6 +15,11 @@ import AdminUsers from './adminUsers';
 import AddNewUser from './AddNewUser';
 import DeleteUser from './DeleteUser';
 import UpdateUser from './UpdateUser';
+import ChooseTeam from './ChooseTeam';
+import AdminTeam from './adminTeam';
+import AddNewTeam from './AddNewTeam';
+import DeleteTeam from './DeleteTeam';
+import UpdateTeam from './UpdateTeam';
 
 
 const Stack = createNativeStackNavigator();
@@ -95,6 +100,46 @@ function App() {
             height: 120,
           }
         }} component={UpdateUser} />
+         <Stack.Screen name="chooseteam"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={ChooseTeam} />
+              <Stack.Screen name="adminteam"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AdminTeam} />
+        <Stack.Screen name="addnewteam"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddNewTeam} />
+         <Stack.Screen name="deleteteam"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={DeleteTeam} />
+         <Stack.Screen name="updateteam"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={UpdateTeam} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

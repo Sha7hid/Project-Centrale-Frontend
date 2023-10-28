@@ -2,67 +2,66 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminUsers({navigation}) {
-  const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
+export default function AdminTeam({navigation}) {
+  const [teamsData, setTeamsData] = useState(null);
+
 
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.5:8080/users`;
+ const apiUrl = `http://192.168.1.5:8080/teams`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setStudentsData(data))
+.then(data => setTeamsData(data))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
    });
 
   },[]);
-  useEffect(() => {
+//   useEffect(() => {
 
 
-    // Fetch student data from AsyncStorage when the component mounts
-    AsyncStorage.getItem("studentData")
-      .then((data) => {
-        if (data) {
-          const parsedData = JSON.parse(data);
-          setStudentData(parsedData);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching student data from AsyncStorage:", error);
-      });
-  }, []);
+//     // Fetch student data from AsyncStorage when the component mounts
+//     AsyncStorage.getItem("studentData")
+//       .then((data) => {
+//         if (data) {
+//           const parsedData = JSON.parse(data);
+//           setStudentData(parsedData);
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching student data from AsyncStorage:", error);
+//       });
+//   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewuser')} style={styles.button2}>
-        <Text style={styles.text}>Add New User</Text>
+      <Pressable onPress={() => navigation.navigate('addnewteam')} style={styles.button2}>
+        <Text style={styles.text}>Add New Team</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteuser')} style={styles.button2}>
-        <Text style={styles.text}>Delete User</Text>
+      <Pressable onPress={() => navigation.navigate('deleteteam')} style={styles.button2}>
+        <Text style={styles.text}>Delete Team</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
-        <Text style={styles.text}>Update A User</Text>
+      <Pressable onPress={() => navigation.navigate('updateteam')} style={styles.button2}>
+        <Text style={styles.text}>Update A Team</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
 
-{studentsData?.map((data) =>(
+{teamsData?.map((data) =>(
         <>
         <View key={data.id} style={styles.card}>
           <Text>Id: {data.id}</Text>
           <Text >Name: {data.name}</Text>
-          <Text >Email: {data.email}</Text>
-          <Text >Password: {data.password}</Text>
-          <Text >Type:{data.type}</Text>
-          <View style={styles.spacetop}></View>
+          <Text >StudentID 1: {data.studentId1}</Text>
+          <Text >StudentID 2: {data.studentId2}</Text>
+          <Text >StudentID 3:{data.studentId3}</Text>
+         
         </View>
         <View style={styles.spacetop}></View>
         </>
