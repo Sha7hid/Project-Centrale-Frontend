@@ -9,7 +9,7 @@ export default function AdminTeam({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.5:8080/teams`;
+ const apiUrl = `http://192.168.241.51:8080/teams`;
   
  fetch(apiUrl)
    .then(response => response.json())
