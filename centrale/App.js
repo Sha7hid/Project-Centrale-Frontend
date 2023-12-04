@@ -25,6 +25,7 @@ import AdminProject from './adminProject';
 import AddNewProject from './AddNewProject';
 import DeleteProject from './DeleteProject';
 import ProjectStatus from './ProjectStatus';
+import UploadDocuments from './UploadDocuments';
 
 
 const Stack = createNativeStackNavigator();
@@ -185,6 +186,14 @@ function App() {
             height: 120,
           }
         }} component={ProjectStatus} />
+           <Stack.Screen name="uploaddocuments"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={UploadDocuments} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

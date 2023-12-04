@@ -46,7 +46,7 @@ export default function User({ navigation }) {
                   </Pressable>
                 </View>
                 <View style={styles.spacetop}></View>
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('uploaddocuments')}>
                   <View style={styles.card2}>
                     <Text style={styles.cardtext}>Upload</Text>
                     <Text style={styles.cardtext}>Documents</Text>
