@@ -2,22 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AddNewTeam({navigation}) {
-  const [TeamData, setTeamData] = useState(null);
-  const [name, setName] = useState('');
-  const [studentId1, setStudentId1] = useState('');
-  const [studentId2, setStudentId2] = useState('');
-  const [studentId3, setStudentId3] = useState('');
+export default function AddNewProject({navigation}) {
+  const [ProjectData, setProjectData] = useState(null);
+  const [teamID, setTeamID] = useState('');
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.4:8080/teams';
+    const apiUrl = 'http://192.168.1.4:8080/projects';
   
     const requestData = {
-        name:name,
-      studentId1: studentId1,
-      studentId2: studentId2,
-      studentId3:studentId3
+   teamId:teamID
     };
   
     fetch(apiUrl, {
@@ -28,13 +22,13 @@ export default function AddNewTeam({navigation}) {
       body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(teamData => setTeamData(teamData))
+      .then(ProjectData => setProjectData(ProjectData))
       .then(setSuccess(true))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-      console.log(TeamData)
+      console.log(ProjectData)
   };
   
 //   useEffect(() => {
@@ -53,18 +47,15 @@ export default function AddNewTeam({navigation}) {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the Team</Text>
+        <Text style={styles.textstyles}>Enter TeamId of the Project</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
+     <TextInput style={styles.input} onChangeText={text => setTeamID(text)} placeholder="teamID"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Team 🎊</Text>:<Text></Text>}
+     {success?<Text style={styles.text}>Successfully Added TeamID to Project 🎊</Text>:<Text></Text>}
     </View>
   );
 }

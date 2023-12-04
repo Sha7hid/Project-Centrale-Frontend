@@ -9,7 +9,7 @@ export default function AdminTeam({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.241.51:8080/teams`;
+ const apiUrl = `http://192.168.1.4:8080/teams`;
   
  fetch(apiUrl)
    .then(response => response.json())
@@ -58,6 +58,7 @@ export default function AdminTeam({navigation}) {
         <View key={data.id} style={styles.card}>
           <Text>Id: {data.id}</Text>
           <Text >Name: {data.name}</Text>
+          <Text >ProjectID: {data.projectId}</Text>
           <Text >StudentID 1: {data.studentId1}</Text>
           <Text >StudentID 2: {data.studentId2}</Text>
           <Text >StudentID 3:{data.studentId3}</Text>

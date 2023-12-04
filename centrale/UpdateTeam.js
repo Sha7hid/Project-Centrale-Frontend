@@ -13,7 +13,7 @@ export default function UpdateTeam({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = `http://192.168.241.51:8080/team/update/id/${teamId}`;
+    const apiUrl = `http://192.168.1.4:8080/team/update/id/${teamId}`;
   
     const requestData = {
         name:name,

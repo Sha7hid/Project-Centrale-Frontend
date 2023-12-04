@@ -31,14 +31,14 @@ export default function User({ navigation }) {
             {studentData.type === "student" && (
               <>
                 <View style={styles.cardlayout}>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('choosetopic')}>
                     <View style={styles.card}>
-                      <Text style={styles.cardtext}>Choose</Text>
-                      <Text style={styles.cardtext}>Topic</Text>
+                      <Text style={styles.cardtext}>Project</Text>
+                      <Text style={styles.cardtext}>Name</Text>
                     </View>
                   </Pressable>
                   <View style={styles.space}></View>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('projectstatus')}>
                     <View style={styles.card}>
                       <Text style={styles.cardtext}>Project</Text>
                       <Text style={styles.cardtext}>Status</Text>
@@ -81,7 +81,7 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                   <View style={styles.space}></View>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('projectstatus')}>
                     <View style={styles.card}>
                       <Text style={styles.cardtext}>Project</Text>
                       <Text style={styles.cardtext}>Status</Text>
@@ -106,7 +106,7 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('adminproject')}>
                     <View style={styles.cardadmin}>
                       <Text style={styles.cardtext}>Project</Text>
                     </View>

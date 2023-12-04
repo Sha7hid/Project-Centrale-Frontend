@@ -1,29 +1,53 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Button,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminUsers({navigation}) {
-  const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
+export default function ProjectStatus({ navigation }) {
+  const [studentData,setStudentData] = useState(null)
+  const [teamData,setTeamData] = useState(null)
+  const [projectData,setProjectData] = useState(null)
 
-
-  useEffect(()=>{
- // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.4:8080/users`;
   
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setStudentsData(data))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-
-  },[]);
+  const fetchProjectData = (teamId) => {
+    const apiUrl = `http://192.168.1.4:8080/project/teamid/${teamId}`;
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => setProjectData(data))
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+  
   useEffect(() => {
-
-
+    if (teamData) {
+      fetchProjectData(teamData.id);
+    }
+  }, [teamData]);
+  const fetchData = (studentId) => {
+    const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => setTeamData(data))
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+  
+  useEffect(() => {
+    if (studentData) {
+      fetchData(studentData.id);
+    }
+  }, [studentData]);
+  useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
       .then((data) => {
@@ -37,43 +61,30 @@ export default function AdminUsers({navigation}) {
       });
   }, []);
 
+ 
+ 
+console.log(projectData)
+const getCompletionPercentage = () => {
+    if (projectData?.synopsis && projectData?.design) {
+      return <Text style={styles.cardtext}>24%</Text>; 
+    } else if (projectData?.synopsis) {
+      return <Text style={styles.cardtext}>12% </Text>;
+    } else {
+      return <Text style={styles.cardtext}>0%</Text>;
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
-    <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewuser')} style={styles.button2}>
-        <Text style={styles.text}>Add New User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteuser')} style={styles.button2}>
-        <Text style={styles.text}>Delete User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
-        <Text style={styles.text}>Update A User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-
-{studentsData?.map((data) =>(
-        <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >Name: {data.name}</Text>
-          <Text >Email: {data.email}</Text>
-          <Text >Password: {data.password}</Text>
-          <Text >Type:{data.type}</Text>
-          <View style={styles.spacetop}></View>
+      <ScrollView>
+        <View style={styles.container}>
+            <Text style={styles.textstyles}>Project Status</Text>
+            <View style={styles.spacetop}></View>
+            <View style={styles.card}>
+              {getCompletionPercentage()}
+            </View>
         </View>
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
-
-     
-      {/* Render your component with studentData */}
-   
-    </View>
-    </ScrollView>
-      </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -92,8 +103,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     textAlign: "center",
   },
-  card2:{
-backgroundColor: "#fff",
+  card2: {
+    backgroundColor: "#fff",
     paddingLeft: 50,
     paddingRight: 50,
     paddingTop: 80,
@@ -132,6 +143,15 @@ backgroundColor: "#fff",
     height: 210,
     marginLeft: 120,
   },
+  input: {
+    backgroundColor:'#fff',
+    textAlign:'center',
+    height: 50,
+    width:270,
+    margin: 12,
+    borderWidth: 1,
+    borderRadius:50,
+  },
   div: {
     backgroundColor: "#E652FF",
     paddingBottom: 65,
@@ -159,7 +179,7 @@ backgroundColor: "#fff",
     elevation: 3,
     backgroundColor: "#E652FF",
   },
-  buttonred:{
+  buttonred: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 12,

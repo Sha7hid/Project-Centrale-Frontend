@@ -11,17 +11,18 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function ChooseTeam({ navigation }) {
-  const [teamsData, setTeamsData] = useState([]);
+export default function ChooseTopic({ navigation }) {
   const [studentData,setStudentData] = useState(null)
-  const [teamId,setTeamId] = useState(null)
+  const [teamData,setTeamData] = useState(null)
+  const [projectData,setProjectData] = useState(null)
+  const [name,setName] = useState(null)
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = `http://192.168.1.4:8080/team/teacherId/update/id/${teamId}`;
+    const apiUrl = `http://192.168.1.4:8080/project/name/update/teamid/${teamData.id}`;
   
     const requestData = {
-       teacherId:studentData.id
+       name:name
     };
   
     fetch(apiUrl, {
@@ -39,6 +40,36 @@ export default function ChooseTeam({ navigation }) {
       });
      
   };
+  const fetchProjectData = (teamId) => {
+    const apiUrl = `http://192.168.1.4:8080/project/teamid/${teamId}`;
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => setProjectData(data))
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+  
+  useEffect(() => {
+    if (teamData) {
+      fetchProjectData(teamData.id);
+    }
+  }, [teamData]);
+  const fetchData = (studentId) => {
+    const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => setTeamData(data))
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+  
+  useEffect(() => {
+    if (studentData) {
+      fetchData(studentData.id);
+    }
+  }, [studentData]);
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
@@ -52,82 +83,31 @@ export default function ChooseTeam({ navigation }) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
-  useEffect(() => {
-    // Fetch team data from your API
-    fetchTeamsData();
-  }, []);
-  const fetchTeamsData = async () => {
-    // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.4:8080/teams`;
 
-    try {
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-
-      // Fetch student names for each team
-      const teamsWithStudents = await Promise.all(
-        data.map(async (team) => {
-          const studentsWithNames = [];
-
-          // Fetch student names for studentId1, studentId2, and studentId3
-          for (let i = 1; i <= 3; i++) {
-            const studentId = team[`studentId${i}`];
-            const studentApiUrl = `http://192.168.1.4:8080/user/id/${studentId}`;
-            const studentResponse = await fetch(studentApiUrl);
-            const studentData = await studentResponse.json();
-            studentsWithNames.push({
-              id: studentId,
-              name: studentData.name,
-            });
-          }
-
-          return {
-            ...team,
-            students: studentsWithNames,
-          };
-        })
-      );
-
-      setTeamsData(teamsWithStudents);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
+ 
+ 
+console.log(projectData)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.container}>
-            <Text style={styles.textstyles}>Enter your Team Id</Text>
-            <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="Team ID"/>
-            <Pressable style={styles.button2} onPress={handleSubmit}>
+            <Text style={styles.textstyles}>Enter Your Project Name</Text>
+            <View style={styles.spacetop}></View>
+            <Text style={styles.text}>You can also update existing project name</Text>
+            <Text style={styles.text}>which is given below</Text>
+            <View style={styles.spacetop}></View>
+            <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="project name"/>
+            <Pressable style={styles.button2} onPress={handleSubmit} >
                 <Text style={styles.text}>Submit</Text>
             </Pressable>
-           
-            {success?<Text style={styles.text}>Successfully Choosed Your Team🎊</Text>:<Text></Text>}
             <View style={styles.spacetop}></View>
-            <Text style={styles.text}>look through to see if you have already </Text>
-            <Text style={styles.text}>choosed a team</Text>
-          {teamsData.map((team) => (
-            <>
-             <View style={styles.spacetop}></View>
-              <View key={team.id} style={styles.card}>
-                <Text>Team ID: {team.id}</Text>
-                <View style={styles.spacetop}></View>
-                <Text>Team Name: {team.name}</Text>
-                {team.students.map((student, index) => (
-                  <View key={student.id} style={styles.spacetop}>
-                    <Text>
-                      Student {index + 1} Name: {student.name}
-                    </Text>
-                  </View>
-                ))}
-                 <View style={styles.spacetop}></View>
-                {team.teacherId===studentData.id?<Text>Teacher Name: {studentData.name}</Text>:<Text>TeacherID :{team.teacherId}</Text>}
-              </View>
-              <View style={styles.spacetop}></View>
-            </>
-          ))}
+            {success?<Text style={styles.text}>Successfully Submitted Project Name🎊</Text>:<Text></Text>}
+            <View style={styles.spacetop}></View>
+            <View style={styles.card}>
+              {projectData?.name?
+          <Text style={styles.cardtext}>{projectData.name}</Text>:<Text style={styles.cardtext}>No Project Name</Text>  
+          }
+            </View>
         </View>
       </ScrollView>
     </SafeAreaView>
