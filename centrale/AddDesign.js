@@ -1,42 +1,67 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AddNewUser({navigation}) {
-  const [studentData, setStudentData] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [type, setType] = useState('');
-  const [password, setPassword] = useState('');
-  const [success,setSuccess] = useState(false);
-  const handleSubmit = () => {
-   
-    const apiUrl = 'http://192.168.1.3:8080/users';
-  
-    const requestData = {
-        name:name,
-      email: email,
-      password: password,
-      type:type
+export default function AddDesign({navigation}) {
+    const [studentData,setStudentData] = useState(null)
+    const [teamData,setTeamData] = useState(null)
+    const [projectData,setProjectData] = useState(null)
+    const [link,setLink] = useState(null)
+    const [success,setSuccess] = useState(false);
+    const handleSubmit = () => {
+     
+      const apiUrl = `http://192.168.1.3:8080/project/design/update/teamid/${teamData.id}`;
+    
+      const requestData = {
+         design:link
+      };
+    
+      fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
+        .then(response => response.json())
+        .then(setSuccess(true))
+        .catch(error => {
+          // Handle any errors that occur during the fetch
+          console.error('Error:', error);
+        });
+       
     };
-  
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then(response => response.json())
-      .then(studentData => setStudentData(studentData))
-      .then(setSuccess(true))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
-      console.log(studentData)
-  };
-  
+    const fetchProjectData = (teamId) => {
+      const apiUrl = `http://192.168.1.3:8080/project/teamid/${teamId}`;
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => setProjectData(data))
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    };
+    
+    useEffect(() => {
+      if (teamData) {
+        fetchProjectData(teamData.id);
+      }
+    }, [teamData]);
+    const fetchData = (studentId) => {
+      const apiUrl = `http://192.168.1.3:8080/team/studentid/${studentId}`;
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => setTeamData(data))
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    };
+    
+    useEffect(() => {
+      if (studentData) {
+        fetchData(studentData.id);
+      }
+    }, [studentData]);
+  console.log(projectData)
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
@@ -53,18 +78,30 @@ export default function AddNewUser({navigation}) {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the User</Text>
+        <Text style={styles.textstyles}>Add Url Of Design</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setEmail(text)} placeholder="email"/>
-     <TextInput style={styles.input} onChangeText={text => setPassword(text)} placeholder="password"/>
-     <TextInput style={styles.input} onChangeText={text => setType(text)} placeholder="type"/>
+        <Text style={styles.text}>You can also update existing design url</Text>
+        <View style={styles.spacetop}></View>
+        <Text style={styles.text}>check the file by clicking on the link</Text>
+        <View style={styles.spacetop}></View>
+     <TextInput style={styles.input} onChangeText={text => setLink(text)} placeholder="google drive link"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added User 🎊</Text>:<Text></Text>}
+     {success?<Text style={styles.text}>Successfully Added Design 🎊</Text>:<Text></Text>}
+     <View style={styles.spacetop}></View>
+            <View style={styles.card}>
+              {projectData?.design?
+              <Pressable onPress={()=> {
+                Linking.openURL(projectData.design)
+              }}>
+<Text style={styles.cardtext}>{projectData.design}</Text>
+              </Pressable>
+          :<Text style={styles.cardtext}>No Design</Text>  
+          }
+            </View>
     </View>
   );
 }

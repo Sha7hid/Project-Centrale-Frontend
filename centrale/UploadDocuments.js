@@ -10,7 +10,7 @@ export default function UploadDocuments({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.4:8080/users`;
+ const apiUrl = `http://192.168.1.3:8080/users`;
   
  fetch(apiUrl)
    .then(response => response.json())
@@ -45,23 +45,23 @@ export default function UploadDocuments({navigation}) {
         <View style={styles.spacetop}></View>
         <Text style={styles.text}>Submit your google drive urls of the files</Text>
         <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addsynopsis')}>
         <Text style={styles.text}>Synopsis</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
         <Text style={styles.text}>Design</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase1')}>
         <Text style={styles.text}>Code 50%</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase2')}>
         <Text style={styles.text}>Code 100%</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addreport')}>
         <Text style={styles.text}>Report</Text>
       </Pressable>
       <View style={styles.spacetop}></View>

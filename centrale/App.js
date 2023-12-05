@@ -26,6 +26,13 @@ import AddNewProject from './AddNewProject';
 import DeleteProject from './DeleteProject';
 import ProjectStatus from './ProjectStatus';
 import UploadDocuments from './UploadDocuments';
+import AddSynopsis from './AddSynopsis';
+import AddDesign from './AddDesign';
+import AddCodephase1 from './AddCodephase1';
+import AddCodephase2 from './AddCodephase2';
+import AddReport from './AddReport';
+import AdminMarks from './adminMarks';
+import AddNewMark from './AddNewMark';
 
 
 const Stack = createNativeStackNavigator();
@@ -194,6 +201,62 @@ function App() {
             height: 120,
           }
         }} component={UploadDocuments} />
+                  <Stack.Screen name="addsynopsis"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddSynopsis} />
+                    <Stack.Screen name="adddesign"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddDesign} />
+         <Stack.Screen name="addcodephase1"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddCodephase1} />
+             <Stack.Screen name="addcodephase2"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddCodephase2} />
+             <Stack.Screen name="addreport"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddReport} />
+             <Stack.Screen name="adminmarks"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AdminMarks} />
+            <Stack.Screen name="addnewmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddNewMark} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

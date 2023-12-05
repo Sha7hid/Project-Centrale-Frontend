@@ -18,7 +18,7 @@ export default function ProjectStatus({ navigation }) {
 
   
   const fetchProjectData = (teamId) => {
-    const apiUrl = `http://192.168.1.4:8080/project/teamid/${teamId}`;
+    const apiUrl = `http://192.168.1.3:8080/project/teamid/${teamId}`;
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => setProjectData(data))
@@ -33,7 +33,7 @@ export default function ProjectStatus({ navigation }) {
     }
   }, [teamData]);
   const fetchData = (studentId) => {
-    const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
+    const apiUrl = `http://192.168.1.3:8080/team/studentid/${studentId}`;
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => setTeamData(data))
@@ -65,11 +65,24 @@ export default function ProjectStatus({ navigation }) {
  
 console.log(projectData)
 const getCompletionPercentage = () => {
-    if (projectData?.synopsis && projectData?.design) {
-      return <Text style={styles.cardtext}>24%</Text>; 
-    } else if (projectData?.synopsis) {
-      return <Text style={styles.cardtext}>12% </Text>;
-    } else {
+    if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2 && projectData?.final_presentation && projectData?.report) {
+      return <Text style={styles.cardtext}>100%</Text>; 
+    } else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2 && projectData?.final_presentation) {
+      return <Text style={styles.cardtext}>88%</Text>;
+    } else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2) {
+      return <Text style={styles.cardtext}>76%</Text>;
+    }   else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation ) {
+      return <Text style={styles.cardtext}>60%</Text>;
+    }   else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1) {
+      return <Text style={styles.cardtext}>48%</Text>;
+    }   else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation ) {
+      return <Text style={styles.cardtext}>36%</Text>;
+    }   else if (projectData?.synopsis && projectData?.design  ) {
+      return <Text style={styles.cardtext}>24%</Text>;
+    }  else if (projectData?.synopsis) {
+      return <Text style={styles.cardtext}>12%</Text>;
+    }
+    else {
       return <Text style={styles.cardtext}>0%</Text>;
     }
   };

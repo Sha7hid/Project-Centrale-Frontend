@@ -112,9 +112,9 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('adminmarks')}>
                     <View style={styles.cardadmin}>
-                      <Text style={styles.cardtext}>Details</Text>
+                      <Text style={styles.cardtext}>Marks</Text>
                     </View>
                   </Pressable>
                 </View>
