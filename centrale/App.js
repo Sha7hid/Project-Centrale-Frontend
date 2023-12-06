@@ -33,6 +33,9 @@ import AddCodephase2 from './AddCodephase2';
 import AddReport from './AddReport';
 import AdminMarks from './adminMarks';
 import AddNewMark from './AddNewMark';
+import DeleteMark from './DeleteMark';
+import UploadMarks from './UploadMarks';
+import AddSynopsisMark from './AddSynopsisMark';
 
 
 const Stack = createNativeStackNavigator();
@@ -257,6 +260,30 @@ function App() {
             height: 120,
           }
         }} component={AddNewMark} />
+            <Stack.Screen name="deletemark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={DeleteMark} />
+              <Stack.Screen name="uploadmarks"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={UploadMarks} />
+            <Stack.Screen name="addsynopsismark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddSynopsisMark} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

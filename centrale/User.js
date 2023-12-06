@@ -74,7 +74,7 @@ export default function User({ navigation }) {
                 </View>
                 <View style={styles.spacetop}></View>
                 <View style={styles.cardlayout}>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('uploadmarks')}>
                     <View style={styles.card}>
                       <Text style={styles.cardtext}>Upload</Text>
                       <Text style={styles.cardtext}>Marks</Text>

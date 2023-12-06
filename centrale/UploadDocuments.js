@@ -10,7 +10,7 @@ export default function UploadDocuments({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.3:8080/users`;
+ const apiUrl = `http://192.168.170.51:8080/users`;
   
  fetch(apiUrl)
    .then(response => response.json())

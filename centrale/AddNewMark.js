@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddNewMark({navigation}) {
@@ -9,7 +9,7 @@ export default function AddNewMark({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.3:8080/users';
+    const apiUrl = 'http://192.168.170.51:8080/marks';
   
     const requestData = {
        studentid:studentid
@@ -31,23 +31,37 @@ export default function AddNewMark({navigation}) {
       });
       console.log(studentData)
   };
-  
-  useEffect(() => {
-    // Fetch student data from AsyncStorage when the component mounts
-    AsyncStorage.getItem("studentData")
-      .then((data) => {
-        if (data) {
-          const parsedData = JSON.parse(data);
-          setStudentData(parsedData);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching student data from AsyncStorage:", error);
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `http://192.168.170.51:8080/users`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setStudentData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
       });
-  }, []);
+   
+     },[]);
+  // useEffect(() => {
+  //   // Fetch student data from AsyncStorage when the component mounts
+  //   AsyncStorage.getItem("studentData")
+  //     .then((data) => {
+  //       if (data) {
+  //         const parsedData = JSON.parse(data);
+  //         setStudentData(parsedData);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching student data from AsyncStorage:", error);
+  //     });
+  // }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <View style={styles.container}>
         <Text style={styles.textstyles}>Enter The Student Id To Add Mark</Text>
         <View style={styles.spacetop}></View>
      <TextInput style={styles.input} onChangeText={text => setStudentid(text)} placeholder="student id"/>
@@ -57,7 +71,23 @@ export default function AddNewMark({navigation}) {
      </Pressable>
      <View style={styles.spacetop}></View>
      {success?<Text style={styles.text}>Successfully Added Mark For Student 🎊</Text>:<Text></Text>}
-    </View>
+     <View style={styles.spacetop}></View>
+<Text style={styles.text}>Look through to select the student id</Text>
+     {studentData?.map((data) =>(
+        <>
+         {data.type == 'student'?
+        <View key={data.id} style={styles.card}>
+  <Text>Id: {data.id}</Text>
+  <Text>Name: {data.name}</Text>
+          <View style={styles.spacetop}></View>
+        </View>
+         :<View></View>}
+        <View style={styles.spacetop}></View>
+        </>
+      ))}
+      </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

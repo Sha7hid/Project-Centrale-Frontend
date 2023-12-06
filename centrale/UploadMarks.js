@@ -2,70 +2,81 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminProject({navigation}) {
-  const [projectData, setprojectData] = useState(null);
-
+export default function UploadMarks({navigation}) {
+  const [studentData, setStudentData] = useState(null);
+  const [studentsData, setStudentsData] = useState(null);
+  const [deleteResult, setDeleteResult] = useState(false);
 
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.170.51:8080/projects`;
+ const apiUrl = `http://192.168.170.51:8080/users`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setprojectData(data))
+.then(data => setStudentsData(data))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
    });
 
   },[]);
-//   useEffect(() => {
+  useEffect(() => {
 
 
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+    // Fetch student data from AsyncStorage when the component mounts
+    AsyncStorage.getItem("studentData")
+      .then((data) => {
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setStudentData(parsedData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching student data from AsyncStorage:", error);
+      });
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewproject')} style={styles.button2}>
-        <Text style={styles.text}>Add New Project</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteproject')}  style={styles.button2}>
-        <Text style={styles.text}>Delete Project</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable  style={styles.button2}>
-        <Text style={styles.text}>Update A Project</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-
-{projectData?.map((data) =>(
-        <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >TeamID: {data.teamId}</Text>
-        </View>
+    <Text style={styles.textstyles}>Choose To Add Mark</Text>
         <View style={styles.spacetop}></View>
-        </>
-      ))}
-
-     
-      {/* Render your component with studentData */}
-   
+        <Text style={styles.text}>Submit the marks for each phase</Text>
+        <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addsynopsismark')}>
+        <Text style={styles.text}>Synopsis</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+        <Text style={styles.text}>Design</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+        <Text style={styles.text}>First Presentation</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase1')}>
+        <Text style={styles.text}>Code 50%</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+        <Text style={styles.text}>Second Presentation</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase2')}>
+        <Text style={styles.text}>Code 100%</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+        <Text style={styles.text}>Final Presentation</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addreport')}>
+        <Text style={styles.text}>Report</Text>
+      </Pressable>
+      <View style={styles.spacetop}></View>
     </View>
     </ScrollView>
       </SafeAreaView>
@@ -148,8 +159,8 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingVertical: 25,
+    paddingHorizontal: 42,
     borderRadius: 50,
     elevation: 3,
     backgroundColor: "#E652FF",
@@ -164,7 +175,7 @@ backgroundColor: "#fff",
     backgroundColor: "#FF0000",
   },
   text: {
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 21,
     fontWeight: "bold",
     letterSpacing: 0.25,

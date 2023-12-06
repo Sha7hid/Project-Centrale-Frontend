@@ -10,7 +10,7 @@ export default function AdminMarks({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.3:8080/users`;
+ const apiUrl = `http://192.168.170.51:8080/marks`;
   
  fetch(apiUrl)
    .then(response => response.json())
@@ -45,7 +45,7 @@ export default function AdminMarks({navigation}) {
         <Text style={styles.text}>Add New Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteuser')} style={styles.button2}>
+      <Pressable onPress={() => navigation.navigate('deletemark')} style={styles.button2}>
         <Text style={styles.text}>Delete Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
@@ -53,16 +53,15 @@ export default function AdminMarks({navigation}) {
         <Text style={styles.text}>Update A Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-<Text style={styles.text}>Look through to select the student id</Text>
+      <Text style={styles.text}>Look through to select the mark id</Text>
+      <View style={styles.spacetop}></View>
 {studentsData?.map((data) =>(
         <>
-         {data.type == 'student'?
         <View key={data.id} style={styles.card}>
   <Text>Id: {data.id}</Text>
-  <Text>Name: {data.name}</Text>
+  <Text>StudentID: {data.studentid}</Text>
           <View style={styles.spacetop}></View>
         </View>
-         :<View></View>}
         <View style={styles.spacetop}></View>
         </>
       ))}

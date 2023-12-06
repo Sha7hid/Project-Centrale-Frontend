@@ -11,7 +11,7 @@ export default function AddNewTeam({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.3:8080/teams';
+    const apiUrl = 'http://192.168.170.51:8080/teams';
   
     const requestData = {
         name:name,

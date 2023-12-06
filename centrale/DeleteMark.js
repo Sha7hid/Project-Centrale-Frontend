@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function DeleteUser({navigation}) {
-  const [studentData, setStudentData] = useState(null);
+export default function DeleteMark({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.170.51:8080/user/delete/${userId}`;
+    const apiUrl = `http://192.168.170.51:8080/mark/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -39,7 +38,7 @@ export default function DeleteUser({navigation}) {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the User to delete</Text>
+        <Text style={styles.textstyles}>Enter the ID of the Mark to delete</Text>
         <View style={styles.spacetop}></View>
      <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
      <View style={styles.spacetop}></View>
@@ -47,7 +46,7 @@ export default function DeleteUser({navigation}) {
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Deleted User 🎊</Text>:<Text></Text>}
+     {success?<Text style={styles.text}>Successfully Deleted Mark 🎊</Text>:<Text></Text>}
     </View>
   );
 }
