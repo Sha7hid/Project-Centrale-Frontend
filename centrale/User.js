@@ -65,7 +65,7 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                   <View style={styles.space}></View>
-                  <Pressable>
+                  <Pressable onPress={() => navigation.navigate('guidemeeting')}>
                     <View style={styles.card}>
                       <Text style={styles.cardtext}>Guide</Text>
                       <Text style={styles.cardtext}>meeting</Text>

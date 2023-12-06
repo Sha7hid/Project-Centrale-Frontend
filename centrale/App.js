@@ -36,6 +36,14 @@ import AddNewMark from './AddNewMark';
 import DeleteMark from './DeleteMark';
 import UploadMarks from './UploadMarks';
 import AddSynopsisMark from './AddSynopsisMark';
+import AddDesignMark from './AddDesignMark';
+import AddFirstMark from './AddFirstMark';
+import AddFiftyMark from './AddFiftyMark';
+import AddSecondMark from './AddSecondMark';
+import AddHundredMark from './AddHundredMark';
+import AddFinalMark from './AddFinalMark';
+import AddReportMark from './AddReportMark';
+import GuideMeeting from './GuideMeeting';
 
 
 const Stack = createNativeStackNavigator();
@@ -284,6 +292,70 @@ function App() {
             height: 120,
           }
         }} component={AddSynopsisMark} />
+             <Stack.Screen name="adddesignmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddDesignMark} />
+             <Stack.Screen name="addfirstmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddFirstMark} />
+             <Stack.Screen name="addfiftymark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddFiftyMark} />
+             <Stack.Screen name="addsecondmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddSecondMark} />
+             <Stack.Screen name="addhundredmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddHundredMark} />
+             <Stack.Screen name="addfinalmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddFinalMark} />
+             <Stack.Screen name="addreportmark"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddReportMark} />
+                     <Stack.Screen name="guidemeeting"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={GuideMeeting} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

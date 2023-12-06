@@ -6,7 +6,7 @@ export default function DeleteTeam({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.170.51:8080/team/delete/${userId}`;
+    const apiUrl = `http://192.168.1.4:8080/team/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',

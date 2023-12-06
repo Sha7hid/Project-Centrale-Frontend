@@ -10,7 +10,7 @@ export default function UploadMarks({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.170.51:8080/users`;
+ const apiUrl = `http://192.168.1.4:8080/users`;
   
  fetch(apiUrl)
    .then(response => response.json())
@@ -49,31 +49,31 @@ export default function UploadMarks({navigation}) {
         <Text style={styles.text}>Synopsis</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesignmark')}>
         <Text style={styles.text}>Design</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addfirstmark')}>
         <Text style={styles.text}>First Presentation</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase1')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addfiftymark')}>
         <Text style={styles.text}>Code 50%</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addsecondmark')}>
         <Text style={styles.text}>Second Presentation</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase2')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addhundredmark')}>
         <Text style={styles.text}>Code 100%</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addfinalmark')}>
         <Text style={styles.text}>Final Presentation</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addreport')}>
+      <Pressable style={styles.button2} onPress={() => navigation.navigate('addreportmark')}>
         <Text style={styles.text}>Report</Text>
       </Pressable>
       <View style={styles.spacetop}></View>

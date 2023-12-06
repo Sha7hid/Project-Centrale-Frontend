@@ -9,7 +9,7 @@ export default function AdminProject({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.170.51:8080/projects`;
+ const apiUrl = `http://192.168.1.4:8080/projects`;
   
  fetch(apiUrl)
    .then(response => response.json())

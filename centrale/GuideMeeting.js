@@ -1,42 +1,50 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AddNewTeam({navigation}) {
-  const [TeamData, setTeamData] = useState(null);
-  const [name, setName] = useState('');
-  const [studentId1, setStudentId1] = useState('');
-  const [studentId2, setStudentId2] = useState('');
-  const [studentId3, setStudentId3] = useState('');
-  const [success,setSuccess] = useState(false);
-  const handleSubmit = () => {
-   
-    const apiUrl = 'http://192.168.1.4:8080/teams';
-  
-    const requestData = {
-        name:name,
-      studentId1: studentId1,
-      studentId2: studentId2,
-      studentId3:studentId3
+export default function GuideMeeting({navigation}) {
+    const [studentData,setStudentData] = useState(null)
+    const [studentid,setStudentid] = useState(null)
+    const [mark,setMark] = useState(null)
+    const [success,setSuccess] = useState(false);
+    const handleSubmit = () => {
+     
+      const apiUrl = `http://192.168.1.4:8080/mark/report/update/studentid/${studentid}`;
+    const parsedmark = parseInt(mark)
+      const requestData = {
+         mark:parsedmark
+      };
+    
+      fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
+        .then(response => response.json())
+        .then(setSuccess(true))
+        .catch(error => {
+          // Handle any errors that occur during the fetch
+          console.error('Error:', error);
+        });
+       
     };
-  
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then(response => response.json())
-      .then(teamData => setTeamData(teamData))
-      .then(setSuccess(true))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
-      console.log(TeamData)
-  };
-  
+    useEffect(()=>{
+        // Replace the URL with your actual API endpoint
+        const apiUrl = `http://192.168.1.4:8080/users`;
+         
+        fetch(apiUrl)
+          .then(response => response.json())
+       .then(data => setStudentData(data))
+          .catch(error => {
+            // Handle any errors that occur during the fetch
+            console.error('Error:', error);
+          });
+       
+         },[]);
+    
+    
 //   useEffect(() => {
 //     // Fetch student data from AsyncStorage when the component mounts
 //     AsyncStorage.getItem("studentData")
@@ -52,20 +60,47 @@ export default function AddNewTeam({navigation}) {
 //   }, []);
 
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the Team</Text>
+        <Text style={styles.textstyles}>Add Guide Meeting Attendance</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
+        <Text style={styles.text}>You can also update existing mark</Text>
+        <View style={styles.spacetop}></View>
+     <TextInput style={styles.input} onChangeText={text => setStudentid(text)} placeholder="student id"/>
+     <TextInput style={styles.input} onChangeText={text => setMark(text)} placeholder="mark"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Team 🎊</Text>:<Text></Text>}
+     {success?<Text style={styles.text}>Successfully Added Attendance Mark 🎊</Text>:<Text></Text>}
+     <View style={styles.spacetop}></View>
+        <Text style={styles.text}>Look through to select student id</Text>
+        <View style={styles.spacetop}></View>
+     {studentData?.map((data) =>(
+        <>
+         {data.type == 'student'?
+        <View key={data.id} style={styles.card}>
+  <Text>Id: {data.id}</Text>
+  <Text>Name: {data.name}</Text>
+          <View style={styles.spacetop}></View>
+        </View>
+         :<View></View>}
+        <View style={styles.spacetop}></View>
+        </>
+      ))}
+            {/* <View style={styles.card}>
+              {projectData?.synopsis?
+              <Pressable>
+<Text style={styles.cardtext}>{projectData.synopsis}</Text>
+              </Pressable>
+          :<Text style={styles.cardtext}>No Mark</Text>  
+          }
+            </View> */}
     </View>
+    </ScrollView>
+      </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

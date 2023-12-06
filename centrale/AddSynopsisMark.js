@@ -9,10 +9,10 @@ export default function AddSynopsisMark({navigation}) {
     const [success,setSuccess] = useState(false);
     const handleSubmit = () => {
      
-      const apiUrl = `http://192.168.170.51:8080/project/synopsis/update/teamid/${teamData.id}`;
-    
+      const apiUrl = `http://192.168.1.4:8080/mark/synopsis/update/studentid/${studentid}`;
+    const parsedmark = parseInt(mark)
       const requestData = {
-         synopsis:link
+         mark:parsedmark
       };
     
       fetch(apiUrl, {
@@ -32,7 +32,7 @@ export default function AddSynopsisMark({navigation}) {
     };
     useEffect(()=>{
         // Replace the URL with your actual API endpoint
-        const apiUrl = `http://192.168.170.51:8080/users`;
+        const apiUrl = `http://192.168.1.4:8080/users`;
          
         fetch(apiUrl)
           .then(response => response.json())
@@ -74,8 +74,10 @@ export default function AddSynopsisMark({navigation}) {
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Synopsis 🎊</Text>:<Text></Text>}
+     {success?<Text style={styles.text}>Successfully Added Synopsis Mark 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
+        <Text style={styles.text}>Look through to select student id</Text>
+        <View style={styles.spacetop}></View>
      {studentData?.map((data) =>(
         <>
          {data.type == 'student'?
