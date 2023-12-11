@@ -9,7 +9,7 @@ export default function AddNewMark({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.4:8080/marks';
+    const apiUrl = 'http://192.168.1.5:8080/marks';
   
     const requestData = {
        studentid:studentid
@@ -33,7 +33,7 @@ export default function AddNewMark({navigation}) {
   };
   useEffect(()=>{
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.4:8080/users`;
+    const apiUrl = `http://192.168.1.5:8080/users`;
      
     fetch(apiUrl)
       .then(response => response.json())

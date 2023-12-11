@@ -18,7 +18,7 @@ export default function ProjectStatus({ navigation }) {
 
   
   const fetchProjectData = (teamId) => {
-    const apiUrl = `http://192.168.1.4:8080/project/teamid/${teamId}`;
+    const apiUrl = `http://192.168.1.5:8080/project/teamid/${teamId}`;
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => setProjectData(data))
@@ -33,7 +33,7 @@ export default function ProjectStatus({ navigation }) {
     }
   }, [teamData]);
   const fetchData = (studentId) => {
-    const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
+    const apiUrl = `http://192.168.1.5:8080/team/studentid/${studentId}`;
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => setTeamData(data))

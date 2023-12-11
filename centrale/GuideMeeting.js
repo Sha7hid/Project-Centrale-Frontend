@@ -9,7 +9,7 @@ export default function GuideMeeting({navigation}) {
     const [success,setSuccess] = useState(false);
     const handleSubmit = () => {
      
-      const apiUrl = `http://192.168.1.4:8080/mark/report/update/studentid/${studentid}`;
+      const apiUrl = `http://192.168.1.5:8080/mark/report/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
          mark:parsedmark
@@ -32,7 +32,7 @@ export default function GuideMeeting({navigation}) {
     };
     useEffect(()=>{
         // Replace the URL with your actual API endpoint
-        const apiUrl = `http://192.168.1.4:8080/users`;
+        const apiUrl = `http://192.168.1.5:8080/users`;
          
         fetch(apiUrl)
           .then(response => response.json())

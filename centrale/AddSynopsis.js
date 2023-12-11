@@ -10,7 +10,7 @@ export default function AddSynopsis({navigation}) {
     const [success,setSuccess] = useState(false);
     const handleSubmit = () => {
      
-      const apiUrl = `http://192.168.1.4:8080/project/synopsis/update/teamid/${teamData.id}`;
+      const apiUrl = `http://192.168.1.5:8080/project/synopsis/update/teamid/${teamData.id}`;
     
       const requestData = {
          synopsis:link
@@ -32,7 +32,7 @@ export default function AddSynopsis({navigation}) {
        
     };
     const fetchProjectData = (teamId) => {
-      const apiUrl = `http://192.168.1.4:8080/project/teamid/${teamId}`;
+      const apiUrl = `http://192.168.1.5:8080/project/teamid/${teamId}`;
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => setProjectData(data))
@@ -47,7 +47,7 @@ export default function AddSynopsis({navigation}) {
       }
     }, [teamData]);
     const fetchData = (studentId) => {
-      const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
+      const apiUrl = `http://192.168.1.5:8080/team/studentid/${studentId}`;
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => setTeamData(data))
@@ -75,7 +75,7 @@ export default function AddSynopsis({navigation}) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
-
+console.log(teamData)
   return (
     <View style={styles.container}>
         <Text style={styles.textstyles}>Add Url Of Synopsis</Text>

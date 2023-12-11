@@ -3,13 +3,15 @@ import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeArea
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddSynopsisMark({navigation}) {
-    const [studentData,setStudentData] = useState(null)
-    const [studentid,setStudentid] = useState(null)
-    const [mark,setMark] = useState(null)
-    const [success,setSuccess] = useState(false);
+  const [studentsData,setStudentsData] = useState(null)
+  const [studentData,setStudentData] = useState(null)
+  const [TeamData,setTeamData] = useState(null)
+  const [studentid,setStudentid] = useState(null)
+  const [mark,setMark] = useState(null)
+  const [success,setSuccess] = useState(false);
     const handleSubmit = () => {
      
-      const apiUrl = `http://192.168.1.4:8080/mark/synopsis/update/studentid/${studentid}`;
+      const apiUrl = `http://192.168.1.5:8080/mark/synopsis/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
          mark:parsedmark
@@ -32,11 +34,11 @@ export default function AddSynopsisMark({navigation}) {
     };
     useEffect(()=>{
         // Replace the URL with your actual API endpoint
-        const apiUrl = `http://192.168.1.4:8080/users`;
+        const apiUrl = `http://192.168.1.5:8080/users`;
          
         fetch(apiUrl)
           .then(response => response.json())
-       .then(data => setStudentData(data))
+       .then(data => setStudentsData(data))
           .catch(error => {
             // Handle any errors that occur during the fetch
             console.error('Error:', error);
@@ -44,21 +46,35 @@ export default function AddSynopsisMark({navigation}) {
        
          },[]);
     
-    
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
-
+         const fetchData = (studentId) => {
+          const apiUrl = `http://192.168.1.5:8080/team/studentid/${studentId}`;
+          fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => setTeamData(data))
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        };
+        
+        useEffect(() => {
+          if (studentData) {
+            fetchData(studentData.id);
+          }
+        }, [studentData]);
+  useEffect(() => {
+    // Fetch student data from AsyncStorage when the component mounts
+    AsyncStorage.getItem("studentData")
+      .then((data) => {
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setStudentData(parsedData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching student data from AsyncStorage:", error);
+      });
+  }, []);
+console.log(TeamData)
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
@@ -78,9 +94,9 @@ export default function AddSynopsisMark({navigation}) {
      <View style={styles.spacetop}></View>
         <Text style={styles.text}>Look through to select student id</Text>
         <View style={styles.spacetop}></View>
-     {studentData?.map((data) =>(
+     {studentsData?.map((data) =>(
         <>
-         {data.type == 'student'?
+         {data.type == 'student'  && data.id == TeamData?.studentId1 || data.id == TeamData?.studentId2 || data.id == TeamData?.studentId3?
         <View key={data.id} style={styles.card}>
   <Text>Id: {data.id}</Text>
   <Text>Name: {data.name}</Text>
