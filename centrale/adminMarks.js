@@ -49,7 +49,7 @@ export default function AdminMarks({navigation}) {
         <Text style={styles.text}>Delete Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
+      <Pressable  style={styles.button2}>
         <Text style={styles.text}>Update A Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
