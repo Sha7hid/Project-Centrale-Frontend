@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
+  Linking,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -11,12 +12,48 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+// import RNFS from 'react-native-fs';
+// import { PDFView } from 'react-native-pdf';
 export default function ProjectStatus({ navigation }) {
   const [studentData,setStudentData] = useState(null)
   const [teamData,setTeamData] = useState(null)
   const [projectData,setProjectData] = useState(null)
+  // const [pdfPath, setPdfPath] = React.useState(null);
+  // const downloadPDF = async () => {
+  //   const fileURL = 'YOUR_GOOGLE_DRIVE_PUBLIC_PDF_URL'; // Replace with the public file URL
 
-  
+  //   try {
+  //     const { dirs } = RNFS;
+  //     const pdfPath = `${dirs.DocumentDir}/temp.pdf`;
+
+  //     const options = {
+  //       fromUrl: fileURL,
+  //       toFile: pdfPath,
+  //     };
+
+  //     const response = await RNFS.downloadFile(options);
+  //     console.log('PDF downloaded:', pdfPath);
+  //     setPdfPath(pdfPath);
+  //   } catch (error) {
+  //     console.error('Error downloading PDF:', error);
+  //   }
+  // };
+
+  // const extractTextFromPDF = async () => {
+  //   try {
+  //     const text = await PDFView.asText({
+  //       path: pdfPath,
+  //       scale: 1.0, // Adjust scale if needed
+  //     });
+
+  //     console.log('Extracted text:', text);
+  //     // Use the extracted text as needed
+  //   } catch (error) {
+  //     console.error('Error extracting text from PDF:', error);
+  //   }
+  // };
+
+
   const fetchProjectData = (teamId) => {
     const apiUrl = `http://192.168.1.5:8080/project/teamid/${teamId}`;
     fetch(apiUrl)
@@ -86,6 +123,7 @@ const getCompletionPercentage = () => {
       return <Text style={styles.cardtext}>0%</Text>;
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -95,6 +133,62 @@ const getCompletionPercentage = () => {
             <View style={styles.card}>
               {getCompletionPercentage()}
             </View>
+            <View style={styles.spacetop}></View>
+            <View style={styles.buttonred}>
+              <Pressable>
+                <Text style={styles.text}>Generate Report</Text>
+              </Pressable>
+            </View>
+            <View style={styles.spacetop}></View>
+            {projectData?.synopsis ?
+            <View style={styles.button2}>
+              <Pressable onPress={()=> {
+                Linking.openURL(projectData.synopsis)
+              }}>
+<Text style={styles.text}>Synopsis</Text>
+              </Pressable>
+            </View>
+:<View></View>}
+   <View style={styles.spacetop}></View>
+     {projectData?.design ?
+            <View style={styles.button2}>
+              <Pressable onPress={()=> {
+                Linking.openURL(projectData.design)
+              }}>
+<Text style={styles.text}>Design</Text>
+              </Pressable>
+            </View>
+:<View></View>}
+   <View style={styles.spacetop}></View>
+     {projectData?.codephase1 ?
+            <View style={styles.button2}>
+              <Pressable onPress={()=> {
+                Linking.openURL(projectData.codephase1)
+              }}>
+<Text style={styles.text}>Codephase1</Text>
+              </Pressable>
+            </View>
+:<View></View>}
+   <View style={styles.spacetop}></View>
+{projectData?.codephase2 ?
+            <View style={styles.button2}>
+              <Pressable onPress={()=> {
+                Linking.openURL(projectData.codephase2)
+              }}>
+<Text style={styles.text}>Codephase2</Text>
+              </Pressable>
+            </View>
+:<View></View>}
+   <View style={styles.spacetop}></View>
+   {projectData?.report ?
+            <View style={styles.button2}>
+              <Pressable onPress={()=> {
+                Linking.openURL(projectData.report)
+              }}>
+<Text style={styles.text}>Report</Text>
+              </Pressable>
+            </View>
+:<View></View>}
         </View>
       </ScrollView>
     </SafeAreaView>
