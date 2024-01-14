@@ -9,7 +9,7 @@ export default function AdminTeam({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.4:8080/teams`;
+ const apiUrl = `https://centrale.onrender.com/teams`;
   
  fetch(apiUrl)
    .then(response => response.json())

@@ -9,7 +9,7 @@ export default function AdminProject({navigation}) {
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.4:8080/projects`;
+ const apiUrl = `https://centrale.onrender.com/projects`;
   
  fetch(apiUrl)
    .then(response => response.json())

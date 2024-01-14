@@ -12,7 +12,7 @@ export default function AddSynopsisMark({navigation}) {
   const [success,setSuccess] = useState(false);
     const handleSubmit = () => {
      
-      const apiUrl = `http://192.168.1.4:8080/mark/synopsis/update/studentid/${studentid}`;
+      const apiUrl = `https://centrale.onrender.com/mark/synopsis/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
          mark:parsedmark
@@ -35,7 +35,7 @@ export default function AddSynopsisMark({navigation}) {
     };
     useEffect(()=>{
         // Replace the URL with your actual API endpoint
-        const apiUrl = `http://192.168.1.4:8080/users`;
+        const apiUrl = `https://centrale.onrender.com/users`;
          
         fetch(apiUrl)
           .then(response => response.json())
@@ -48,7 +48,7 @@ export default function AddSynopsisMark({navigation}) {
          },[]);
     
          const fetchData = (studentId) => {
-          const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
+          const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
           fetch(apiUrl)
             .then(response => response.json())
             .then(data => setTeamData(data))

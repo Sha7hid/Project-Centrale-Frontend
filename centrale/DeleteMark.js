@@ -6,7 +6,7 @@ export default function DeleteMark({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.1.4:8080/mark/delete/${userId}`;
+    const apiUrl = `https://centrale.onrender.com/mark/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',

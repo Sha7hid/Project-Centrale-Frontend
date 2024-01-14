@@ -18,7 +18,7 @@ export default function ChooseTeam({ navigation }) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = `http://192.168.1.4:8080/team/teacherId/update/id/${teamId}`;
+    const apiUrl = `https://centrale.onrender.com/team/teacherId/update/id/${teamId}`;
   
     const requestData = {
        teacherId:studentData.id
@@ -58,7 +58,7 @@ export default function ChooseTeam({ navigation }) {
   }, []);
   const fetchTeamsData = async () => {
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.4:8080/teams`;
+    const apiUrl = `https://centrale.onrender.com/teams`;
 
     try {
       const response = await fetch(apiUrl);
@@ -72,7 +72,7 @@ export default function ChooseTeam({ navigation }) {
           // Fetch student names for studentId1, studentId2, and studentId3
           for (let i = 1; i <= 3; i++) {
             const studentId = team[`studentId${i}`];
-            const studentApiUrl = `http://192.168.1.4:8080/user/id/${studentId}`;
+            const studentApiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
             const studentResponse = await fetch(studentApiUrl);
             const studentData = await studentResponse.json();
             studentsWithNames.push({

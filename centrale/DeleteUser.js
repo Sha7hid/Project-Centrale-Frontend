@@ -8,7 +8,7 @@ export default function DeleteUser({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.1.4:8080/user/delete/${userId}`;
+    const apiUrl = `https://centrale.onrender.com/user/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -26,7 +26,7 @@ export default function DeleteUser({navigation}) {
   
   useEffect(()=>{
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.4:8080/users`;
+    const apiUrl = `https://centrale.onrender.com/users`;
      
     fetch(apiUrl)
       .then(response => response.json())

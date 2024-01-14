@@ -10,7 +10,7 @@ export default function AddNewProject({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.4:8080/projects';
+    const apiUrl = 'https://centrale.onrender.com/projects';
   
     const requestData = {
    teamId:teamID
@@ -35,7 +35,7 @@ export default function AddNewProject({navigation}) {
   
   useEffect(()=>{
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.4:8080/teams`;
+    const apiUrl = `https://centrale.onrender.com/teams`;
      
     fetch(apiUrl)
       .then(response => response.json())

@@ -21,7 +21,7 @@ export default function Login({navigation}) {
   }
   const handleSubmit = () => {
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.4:8080/user/email/${email}`;
+    const apiUrl = `https://centrale.onrender.com/user/email/${email}`;
   
     fetch(apiUrl, {
       method: 'GET', // Assuming you want to fetch student data based on email
