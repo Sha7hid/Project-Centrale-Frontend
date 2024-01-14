@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function DeleteUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.1.5:8080/user/delete/${userId}`;
+    const apiUrl = `http://192.168.1.4:8080/user/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -23,25 +24,34 @@ export default function DeleteUser({navigation}) {
       });
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
-
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `http://192.168.1.4:8080/users`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setStudentData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+   
+     },[]);
+console.log(userId)
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the User to delete</Text>
+        <Text style={styles.textstyles}>Select the User to delete</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <Picker
+        style={styles.input}
+        selectedValue={userId}
+        onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
+      >
+        <Picker.Item label="Select a user" value={null} />
+        {studentData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleDelete} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>

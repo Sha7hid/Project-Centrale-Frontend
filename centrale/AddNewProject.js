@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function AddNewProject({navigation}) {
   const [ProjectData, setProjectData] = useState(null);
+  const [teamsData, setTeamsData] = useState(null);
   const [teamID, setTeamID] = useState('');
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.5:8080/projects';
+    const apiUrl = 'http://192.168.1.4:8080/projects';
   
     const requestData = {
    teamId:teamID
@@ -31,25 +33,34 @@ export default function AddNewProject({navigation}) {
       console.log(ProjectData)
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
-
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `http://192.168.1.4:8080/teams`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setTeamsData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+   
+     },[]);
+console.log(teamID)
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter TeamId of the Project</Text>
+        <Text style={styles.textstyles}>Select Team of the Project</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setTeamID(text)} placeholder="teamID"/>
+        <Picker
+        style={styles.input}
+        selectedValue={teamID}
+        onValueChange={(itemValue, itemIndex) => setTeamID(itemValue)}
+      >
+        <Picker.Item label="Select a team" value={null} />
+        {teamsData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>

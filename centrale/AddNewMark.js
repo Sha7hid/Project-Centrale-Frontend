@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function AddNewMark({navigation}) {
   const [markData, setMarkData] = useState(null);
   const[studentData, setStudentData] = useState(null);
@@ -9,7 +10,7 @@ export default function AddNewMark({navigation}) {
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.5:8080/marks';
+    const apiUrl = 'http://192.168.1.4:8080/marks';
   
     const requestData = {
        studentid:studentid
@@ -33,7 +34,7 @@ export default function AddNewMark({navigation}) {
   };
   useEffect(()=>{
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.5:8080/users`;
+    const apiUrl = `http://192.168.1.4:8080/users`;
      
     fetch(apiUrl)
       .then(response => response.json())
@@ -44,6 +45,12 @@ export default function AddNewMark({navigation}) {
       });
    
      },[]);
+     const filteredData = studentData?.filter((data) => {
+      return (
+        data.type === 'student'
+      );
+    });
+    console.log(studentid)
   // useEffect(() => {
   //   // Fetch student data from AsyncStorage when the component mounts
   //   AsyncStorage.getItem("studentData")
@@ -62,9 +69,18 @@ export default function AddNewMark({navigation}) {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter The Student Id To Add Mark</Text>
+        <Text style={styles.textstyles}>Select The Student To Add Mark</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setStudentid(text)} placeholder="student id"/>
+        <Picker
+        style={styles.input}
+        selectedValue={studentid}
+        onValueChange={(itemValue, itemIndex) => setStudentid(itemValue)}
+      >
+        <Picker.Item label="Select a student" value={null} />
+        {filteredData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
@@ -72,19 +88,6 @@ export default function AddNewMark({navigation}) {
      <View style={styles.spacetop}></View>
      {success?<Text style={styles.text}>Successfully Added Mark For Student 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
-<Text style={styles.text}>Look through to select the student id</Text>
-     {studentData?.map((data) =>(
-        <>
-         {data.type == 'student'?
-        <View key={data.id} style={styles.card}>
-  <Text>Id: {data.id}</Text>
-  <Text>Name: {data.name}</Text>
-          <View style={styles.spacetop}></View>
-        </View>
-         :<View></View>}
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
       </View>
       </ScrollView>
     </SafeAreaView>

@@ -6,7 +6,7 @@ export default function DeleteProject({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.1.5:8080/project/delete/${userId}`;
+    const apiUrl = `http://192.168.1.4:8080/project/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',

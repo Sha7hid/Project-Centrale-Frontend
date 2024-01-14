@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function AddFinalMark({navigation}) {
   const [studentsData,setStudentsData] = useState(null)
   const [studentData,setStudentData] = useState(null)
@@ -11,7 +12,7 @@ export default function AddFinalMark({navigation}) {
   const [success,setSuccess] = useState(false);
     const handleSubmit = () => {
      
-      const apiUrl = `http://192.168.1.5:8080/mark/final_presentation/update/studentid/${studentid}`;
+      const apiUrl = `http://192.168.1.4:8080/mark/final_presentation/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
          mark:parsedmark
@@ -34,7 +35,7 @@ export default function AddFinalMark({navigation}) {
     };
     useEffect(()=>{
         // Replace the URL with your actual API endpoint
-        const apiUrl = `http://192.168.1.5:8080/users`;
+        const apiUrl = `http://192.168.1.4:8080/users`;
          
         fetch(apiUrl)
           .then(response => response.json())
@@ -48,7 +49,7 @@ export default function AddFinalMark({navigation}) {
     
     
          const fetchData = (studentId) => {
-          const apiUrl = `http://192.168.1.5:8080/team/studentid/${studentId}`;
+          const apiUrl = `http://192.168.1.4:8080/team/studentid/${studentId}`;
           fetch(apiUrl)
             .then(response => response.json())
             .then(data => setTeamData(data))
@@ -75,7 +76,12 @@ export default function AddFinalMark({navigation}) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
-console.log(TeamData)
+  const filteredData = studentsData?.filter((data) => {
+    return (
+      data.type === 'student'
+    );
+  });
+  console.log(studentid)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,7 +91,16 @@ console.log(TeamData)
         <View style={styles.spacetop}></View>
         <Text style={styles.text}>You can also update existing mark</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setStudentid(text)} placeholder="student id"/>
+        <Picker
+        style={styles.input}
+        selectedValue={studentid}
+        onValueChange={(itemValue, itemIndex) => setStudentid(itemValue)}
+      >
+        <Picker.Item label="Select a student" value={null} />
+        {filteredData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
      <TextInput style={styles.input} onChangeText={text => setMark(text)} placeholder="mark"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
@@ -94,20 +109,6 @@ console.log(TeamData)
      <View style={styles.spacetop}></View>
      {success?<Text style={styles.text}>Successfully Added Final Presentation Mark 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
-        <Text style={styles.text}>Look through to select student id</Text>
-        <View style={styles.spacetop}></View>
-        {studentsData?.map((data) =>(
-        <>
-         {data.type == 'student' ?
-        <View key={data.id} style={styles.card}>
-  <Text>Id: {data.id}</Text>
-  <Text>Name: {data.name}</Text>
-          <View style={styles.spacetop}></View>
-        </View>
-         :<View></View>}
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
             {/* <View style={styles.card}>
               {projectData?.synopsis?
               <Pressable>

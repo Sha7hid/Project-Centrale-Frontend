@@ -2,16 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function AddNewTeam({navigation}) {
   const [TeamData, setTeamData] = useState(null);
   const [name, setName] = useState('');
+  const [studentsData,setStudentsData] = useState(null)
   const [studentId1, setStudentId1] = useState('');
   const [studentId2, setStudentId2] = useState('');
   const [studentId3, setStudentId3] = useState('');
   const [success,setSuccess] = useState(false);
   const handleSubmit = () => {
    
-    const apiUrl = 'http://192.168.1.5:8080/teams';
+    const apiUrl = 'http://192.168.1.4:8080/teams';
   
     const requestData = {
         name:name,
@@ -37,28 +39,62 @@ export default function AddNewTeam({navigation}) {
       console.log(TeamData)
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
-
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `http://192.168.1.4:8080/users`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setStudentsData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+   
+     },[]);
+     const filteredData = studentsData?.filter((data) => {
+      return (
+        data.type === 'student'
+      );
+    });
+    console.log(studentId1)
+    console.log(studentId2)
+    console.log(studentId3)
   return (
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the Team</Text>
         <View style={styles.spacetop}></View>
      <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
+     <Picker
+        style={styles.input}
+        selectedValue={studentId1}
+        onValueChange={(itemValue, itemIndex) => setStudentId1(itemValue)}
+      >
+        <Picker.Item label="Select student 1" value={null} />
+        {filteredData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
+      <Picker
+        style={styles.input}
+        selectedValue={studentId2}
+        onValueChange={(itemValue, itemIndex) => setStudentId2(itemValue)}
+      >
+        <Picker.Item label="Select student 2" value={null} />
+        {filteredData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
+      <Picker
+        style={styles.input}
+        selectedValue={studentId3}
+        onValueChange={(itemValue, itemIndex) => setStudentId3(itemValue)}
+      >
+        <Picker.Item label="Select student 3" value={null} />
+        {filteredData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
@@ -141,6 +177,7 @@ backgroundColor: "#fff",
     margin: 12,
     borderWidth: 1,
     borderRadius:50,
+    color:'grey'
   },
   div: {
     backgroundColor: "#E652FF",
