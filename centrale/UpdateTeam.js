@@ -5,6 +5,7 @@ import { useCallback } from "react";
 export default function UpdateTeam({navigation}) {
 
   const [teamId, setTeamId] = useState('');
+  const [teamData,setTeamData] = useState(null)
   const [name, setName] = useState('');
   const [studentId1, setStudentId1] = useState('');
   const [studentId2, setStudentId2] = useState('');
@@ -39,30 +40,55 @@ export default function UpdateTeam({navigation}) {
      
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+  useEffect(() => {
+    if (teamId != null) {
+      const apiUrl = `https://centrale.onrender.com/team/id/${teamId}`;
+  
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Set the state values here
+          setTeamData(data);
+          setName(data?.name);
+          setStudentId1(data?.studentId1);
+          setStudentId2(data?.studentId2);
+          setStudentId3(data?.studentId3);
+          setTeacherId(data?.teacherId);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }, [teamId]);
 
   return (
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the Team</Text>
         <View style={styles.spacetop}></View>
+        <View style={styles.row}>
+        <Text style={styles.text2}>Id     </Text>
         <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="id"/>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
-     <TextInput style={styles.input} onChangeText={text => setTeacherId(text)} placeholder="teacherId"/>
+        </View>
+        <View style={styles.row}>
+        <Text style={styles.text2}>Name</Text>
+     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>StId1</Text>
+     <TextInput style={styles.input} value={String(studentId1)} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>StId2</Text>
+     <TextInput style={styles.input} value={String(studentId2)} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>StId3</Text>
+     <TextInput style={styles.input} value={String(studentId3)} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>tId    </Text>
+     <TextInput style={styles.input} value={String(teacherId)} onChangeText={text => setTeacherId(text)} placeholder="teacherId"/>
+     </View>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
@@ -77,6 +103,11 @@ const styles = StyleSheet.create({
     marginTop: 45,
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
+  },
+  row:{
+flexDirection: "row",
+justifyContent: "center",
     alignItems: "center",
   },
   card: {
@@ -166,6 +197,13 @@ backgroundColor: "#fff",
   },
   text: {
     fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "white",
+  },
+  text2: {
+    fontSize: 14,
     lineHeight: 21,
     fontWeight: "bold",
     letterSpacing: 0.25,

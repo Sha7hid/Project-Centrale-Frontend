@@ -37,29 +37,35 @@ export default function UpdateUser({navigation}) {
       console.log(studentData)
   };
   
-  // useEffect(() => {
-  //   // Fetch student data from AsyncStorage when the component mounts
-  //   AsyncStorage.getItem("studentData")
-  //     .then((data) => {
-  //       if (data) {
-  //         const parsedData = JSON.parse(data);
-  //         setStudentData(parsedData);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching student data from AsyncStorage:", error);
-  //     });
-  // }, []);
+  useEffect(() => {
+    if (userId != null) {
+      const apiUrl = `https://centrale.onrender.com/user/id/${userId}`;
+  
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Set the state values here
+          setStudentData(data);
+          setName(data?.name);
+          setEmail(data?.email);
+          setPassword(data?.password);
+          setType(data?.type);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }, [userId]);
 
   return (
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the User</Text>
         <View style={styles.spacetop}></View>
         <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setEmail(text)} placeholder="email"/>
-     <TextInput style={styles.input} onChangeText={text => setPassword(text)} placeholder="password"/>
-     <TextInput style={styles.input} onChangeText={text => setType(text)} placeholder="type"/>
+     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
+     <TextInput style={styles.input} value={email} onChangeText={text => setEmail(text)} placeholder="email"/>
+     <TextInput style={styles.input} value={password} onChangeText={text => setPassword(text)} placeholder="password"/>
+     <TextInput style={styles.input} value={type} onChangeText={text => setType(text)} placeholder="type"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>

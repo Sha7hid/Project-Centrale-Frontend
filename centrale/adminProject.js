@@ -4,8 +4,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminProject({navigation}) {
   const [projectData, setprojectData] = useState(null);
-
-
+  const [TeamDetails, setTeamDetails] = useState([]);
+  const fetchTeamDetails = async (teamId) => {
+    const apiUrl = `https://centrale.onrender.com/team/id/${teamId}`;
+  
+    try {
+      const response = await fetch(apiUrl);
+      const studentDetails = await response.json();
+      return studentDetails;
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+      return null;
+    }
+  };
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
@@ -20,21 +31,15 @@ export default function AdminProject({navigation}) {
    });
 
   },[]);
-//   useEffect(() => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const detailsPromises = projectData.map(data => fetchTeamDetails(data.teamId));
+      const details = await Promise.all(detailsPromises);
+      setTeamDetails(details);
+    };
 
-
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+    fetchData();
+  }, [projectData]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,11 +58,12 @@ export default function AdminProject({navigation}) {
       </Pressable>
       <View style={styles.spacetop}></View>
 
-{projectData?.map((data) =>(
+{projectData?.map((data,index) =>(
         <>
         <View key={data.id} style={styles.card}>
           <Text>Id: {data.id}</Text>
           <Text >TeamID: {data.teamId}</Text>
+          <Text>Team Name: {TeamDetails[index] ? TeamDetails[index].name : 'N/A'}</Text>
         </View>
         <View style={styles.spacetop}></View>
         </>

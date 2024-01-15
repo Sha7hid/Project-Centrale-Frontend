@@ -4,7 +4,24 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminTeam({navigation}) {
   const [teamsData, setTeamsData] = useState(null);
-
+  const [studentNames, setStudentNames] = useState({
+    studentId1: '',
+    studentId2: '',
+    studentId3: '',
+    teacherId:'',
+  });
+  const fetchStudentDetails = async (studentId) => {
+    const apiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
+  
+    try {
+      const response = await fetch(apiUrl);
+      const studentDetails = await response.json();
+      return studentDetails.name;
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+      return null;
+    }
+  };
 
 
   useEffect(()=>{
@@ -20,21 +37,37 @@ export default function AdminTeam({navigation}) {
    });
 
   },[]);
-//   useEffect(() => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const promises = teamsData.map(async (data) => {
+        const names = {
+          studentId1: '',
+          studentId2: '',
+          studentId3: '',
+          teacherId:'',
+        };
 
+        if (data?.studentId1) {
+          names.studentId1 = await fetchStudentDetails(data?.studentId1);
+        }
+        if (data?.studentId2) {
+          names.studentId2 = await fetchStudentDetails(data?.studentId2);
+        }
+        if (data?.studentId3) {
+          names.studentId3 = await fetchStudentDetails(data?.studentId3);
+        }
+        if (data?.teacherId) {
+          names.teacherId = await fetchStudentDetails(data?.teacherId);
+        }
+        return names;
+      });
 
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+      const studentNamesArray = await Promise.all(promises);
+      setStudentNames(studentNamesArray);
+    };
+
+    fetchData();
+  }, [teamsData]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,17 +86,20 @@ export default function AdminTeam({navigation}) {
       </Pressable>
       <View style={styles.spacetop}></View>
 
-{teamsData?.map((data) =>(
+{teamsData?.map((data,index) =>(
         <>
         <View key={data.id} style={styles.card}>
           <Text>Id: {data.id}</Text>
           <Text >Name: {data.name}</Text>
           <Text >ProjectID: {data.projectId}</Text>
           <Text >StudentID 1: {data.studentId1}</Text>
+          <Text>StudentName: {studentNames[index]?.studentId1}</Text>
           <Text >StudentID 2: {data.studentId2}</Text>
-          <Text >StudentID 3:{data.studentId3}</Text>
+          <Text>StudentName: {studentNames[index]?.studentId2}</Text>
+          <Text >StudentID 3: {data.studentId3}</Text>
+          <Text>StudentName: {studentNames[index]?.studentId3}</Text>
          {data.teacherId? <Text>TeacherID : {data.teacherId}</Text>:<Text></Text>}
-         
+         {data.teacherId? <Text>TeacherName : {studentNames[index]?.teacherId}</Text>:<Text></Text>}
         </View>
         <View style={styles.spacetop}></View>
         </>

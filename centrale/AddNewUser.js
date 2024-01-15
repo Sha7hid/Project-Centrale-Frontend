@@ -6,36 +6,65 @@ export default function AddNewUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [isValidEmail, setIsValidEmail] = useState(true);
   const [type, setType] = useState('');
   const [password, setPassword] = useState('');
   const [success,setSuccess] = useState(false);
-  const handleSubmit = () => {
-   
-    const apiUrl = 'https://centrale.onrender.com/users';
-  
-    const requestData = {
-        name:name,
-      email: email,
-      password: password,
-      type:type
-    };
-  
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then(response => response.json())
-      .then(studentData => setStudentData(studentData))
-      .then(setSuccess(true))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
-      console.log(studentData)
+  const [error,setError] = useState(false);
+  const validateEmail = (inputEmail) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(inputEmail);
   };
+
+  const handleEmailChange = (text) => {
+    setEmail(text);
+    setIsValidEmail(validateEmail(text));
+  };
+  const handleSubmit = () => {
+    // Check if the email already exists
+    const checkUrl = `https://centrale.onrender.com/user/email/${email}`;
+  
+    fetch(checkUrl)
+      .then(response => response.json())
+      .then(existingUser => {
+        if (existingUser) {
+          // User with the same email already exists, handle accordingly
+          console.log('User with this email already exists:', existingUser);
+          setError(true)
+          // You might want to show an error message or take other actions
+        } else {
+          // User does not exist, proceed with creating a new user
+          const apiUrl = 'https://centrale.onrender.com/users';
+  
+          const requestData = {
+            name: name,
+            email: email,
+            password: password,
+            type: type
+          };
+  
+          fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+          })
+            .then(response => response.json())
+            .then(newStudentData => {
+              setStudentData(newStudentData);
+              setSuccess(true);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        }
+      })
+      .catch(error => {
+        console.error('Error checking user existence:', error);
+      });
+  };
+  
   
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
@@ -56,7 +85,8 @@ export default function AddNewUser({navigation}) {
         <Text style={styles.textstyles}>Enter Details of the User</Text>
         <View style={styles.spacetop}></View>
      <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setEmail(text)} placeholder="email"/>
+     <TextInput style={styles.input}  onChangeText={handleEmailChange} placeholder="email"/>
+     {!isValidEmail && <Text style={styles.error}>Invalid email address</Text>}
      <TextInput style={styles.input} onChangeText={text => setPassword(text)} placeholder="password"/>
      <TextInput style={styles.input} onChangeText={text => setType(text)} placeholder="type"/>
      <View style={styles.spacetop}></View>
@@ -65,6 +95,7 @@ export default function AddNewUser({navigation}) {
      </Pressable>
      <View style={styles.spacetop}></View>
      {success?<Text style={styles.text}>Successfully Added User 🎊</Text>:<Text></Text>}
+     {error?<Text style={styles.text}>User Already Exists ⚠️</Text>:<Text></Text>}
     </View>
   );
 }
@@ -166,6 +197,13 @@ backgroundColor: "#fff",
     fontWeight: "bold",
     letterSpacing: 0.25,
     color: "white",
+  },
+  error:{
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "red",
   },
   space: {
     paddingLeft: 10,

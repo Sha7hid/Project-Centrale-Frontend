@@ -6,8 +6,19 @@ export default function AdminMarks({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [studentsData, setStudentsData] = useState(null);
   const [deleteResult, setDeleteResult] = useState(false);
-
-
+  const [studentsDetails, setStudentsDetails] = useState([]);
+  const fetchStudentDetails = async (studentId) => {
+    const apiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
+  
+    try {
+      const response = await fetch(apiUrl);
+      const studentDetails = await response.json();
+      return studentDetails;
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+      return null;
+    }
+  };
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
  const apiUrl = `https://centrale.onrender.com/marks`;
@@ -36,7 +47,15 @@ export default function AdminMarks({navigation}) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      const detailsPromises = studentsData.map(data => fetchStudentDetails(data.studentid));
+      const details = await Promise.all(detailsPromises);
+      setStudentsDetails(details);
+    };
 
+    fetchData();
+  }, [studentsData]);
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
@@ -55,11 +74,20 @@ export default function AdminMarks({navigation}) {
       <View style={styles.spacetop}></View>
       <Text style={styles.text}>Look through to select the mark id</Text>
       <View style={styles.spacetop}></View>
-{studentsData?.map((data) =>(
+{studentsData?.map((data,index) =>(
         <>
         <View key={data.id} style={styles.card}>
   <Text>Id: {data.id}</Text>
-  <Text>StudentID: {data.studentid}</Text>
+  <Text>StudentName: {studentsDetails[index] ? studentsDetails[index].name : 'N/A'}</Text>
+  <Text>Synopsis: {data.synopsis? data.synopsis : 0}</Text>
+  <Text>Design: {data.design? data.design : 0}</Text>
+  <Text>First Presentation: {data.first_presentation? data.first_presentation : 0}</Text>
+  <Text>50% Coding: {data.fifty_percent_coding? data.fifty_percent_coding : 0}</Text>
+  <Text>Second Presentation: {data.second_presentation? data.second_presentation : 0}</Text>
+  <Text>100% Coding: {data.hundred_percent_coding? data.hundred_percent_coding : 0}</Text>
+  <Text>Final Presentation: {data.final_presentation? data.final_presentation : 0}</Text>
+  <Text>Report: {data.report? data.report : 0}</Text>
+  <Text>Attendance: {data.attendance? data.attendance : 0}</Text>
           <View style={styles.spacetop}></View>
         </View>
         <View style={styles.spacetop}></View>
