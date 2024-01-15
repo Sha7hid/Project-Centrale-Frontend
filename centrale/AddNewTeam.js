@@ -52,9 +52,19 @@ export default function AddNewTeam({navigation}) {
       });
    
      },[]);
-     const filteredData = studentsData?.filter((data) => {
+     const filteredData1 = studentsData?.filter((data) => {
       return (
-        data.type === 'student'
+        data.type === 'student' && data.id!==studentId2 && data.id!==studentId3
+      );
+    });
+    const filteredData2 = studentsData?.filter((data) => {
+      return (
+        data.type === 'student' && data.id!==studentId1 &&  data.id!==studentId3
+      );
+    });
+    const filteredData3 = studentsData?.filter((data) => {
+      return (
+        data.type === 'student' && data.id!==studentId1 && data.id!==studentId2
       );
     });
     console.log(studentId1)
@@ -71,7 +81,7 @@ export default function AddNewTeam({navigation}) {
         onValueChange={(itemValue, itemIndex) => setStudentId1(itemValue)}
       >
         <Picker.Item label="Select student 1" value={null} />
-        {filteredData?.map((student) => (
+        {filteredData1?.map((student) => (
           <Picker.Item key={student.id} label={student.name} value={student.id} />
         ))}
       </Picker>
@@ -81,7 +91,7 @@ export default function AddNewTeam({navigation}) {
         onValueChange={(itemValue, itemIndex) => setStudentId2(itemValue)}
       >
         <Picker.Item label="Select student 2" value={null} />
-        {filteredData?.map((student) => (
+        {filteredData2?.map((student) => (
           <Picker.Item key={student.id} label={student.name} value={student.id} />
         ))}
       </Picker>
@@ -91,7 +101,7 @@ export default function AddNewTeam({navigation}) {
         onValueChange={(itemValue, itemIndex) => setStudentId3(itemValue)}
       >
         <Picker.Item label="Select student 3" value={null} />
-        {filteredData?.map((student) => (
+        {filteredData3?.map((student) => (
           <Picker.Item key={student.id} label={student.name} value={student.id} />
         ))}
       </Picker>
