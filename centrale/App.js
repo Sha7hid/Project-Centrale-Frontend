@@ -44,6 +44,8 @@ import AddHundredMark from './AddHundredMark';
 import AddFinalMark from './AddFinalMark';
 import AddReportMark from './AddReportMark';
 import GuideMeeting from './GuideMeeting';
+import Marks from './Marks';
+import TeacherMarks from './TeacherMarks';
 
 
 const Stack = createNativeStackNavigator();
@@ -356,6 +358,22 @@ function App() {
             height: 120,
           }
         }} component={GuideMeeting} />
+         <Stack.Screen name="marks"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={Marks} />
+            <Stack.Screen name="teachermarks"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherMarks} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

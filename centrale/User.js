@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function User({ navigation }) {
@@ -20,6 +20,8 @@ export default function User({ navigation }) {
   }, []);
 
   return (
+    <SafeAreaView>
+    <ScrollView>
     <View style={styles.container}>
       {/* Render your component with studentData */}
       {studentData && (
@@ -46,12 +48,21 @@ export default function User({ navigation }) {
                   </Pressable>
                 </View>
                 <View style={styles.spacetop}></View>
+                <View style={styles.cardlayout}>
                 <Pressable onPress={() => navigation.navigate('uploaddocuments')}>
-                  <View style={styles.card2}>
+                  <View style={styles.card}>
                     <Text style={styles.cardtext}>Upload</Text>
-                    <Text style={styles.cardtext}>Documents</Text>
+                    <Text style={styles.cardtext}>Files</Text>
                   </View>
                 </Pressable>
+                <View style={styles.space}></View>
+                <Pressable onPress={() => navigation.navigate('marks')}>
+                  <View style={styles.card}>
+                    <Text style={styles.cardtext}>Marks</Text>
+                    <Text style={styles.cardtext}>  </Text>
+                  </View>
+                </Pressable>
+                </View>
               </>
             )}
             {/* Data shown to teachers */}
@@ -87,6 +98,14 @@ export default function User({ navigation }) {
                       <Text style={styles.cardtext}>Status</Text>
                     </View>
                   </Pressable>
+                </View>
+                <View style={styles.cardlayout}>
+                  <Pressable onPress={() => navigation.navigate('teachermarks')}>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Marks</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.spacetop}></View>
                 </View>
               </>
             )}
@@ -126,6 +145,8 @@ export default function User({ navigation }) {
         </>
       )}
     </View>
+    </ScrollView>
+                </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
