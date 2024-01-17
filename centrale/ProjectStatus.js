@@ -116,14 +116,14 @@ const getCompletionPercentage = () => {
       return <Text style={styles.cardtext}>36%</Text>;
     }   else if (projectData?.synopsis && projectData?.design  ) {
       return <Text style={styles.cardtext}>24%</Text>;
-    }  else if (projectData?.synopsis) {
+    }  else if (projectData?.synopsisApproval) {
       return <Text style={styles.cardtext}>12%</Text>;
     }
     else {
       return <Text style={styles.cardtext}>0%</Text>;
     }
   };
-
+console.log(studentData)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -140,6 +140,7 @@ const getCompletionPercentage = () => {
               </Pressable>
             </View>
             <View style={styles.spacetop}></View>
+            <View style={styles.cardlayout}>
             {projectData?.synopsis ?
             <View style={styles.button2}>
               <Pressable onPress={()=> {
@@ -149,6 +150,13 @@ const getCompletionPercentage = () => {
               </Pressable>
             </View>
 :<View></View>}
+<View style={styles.space}></View>
+{studentData?.type=='teacher'? <View style={styles.buttonwhite}>
+              <Pressable>
+                <Text style={styles.textblue}>Approve</Text>
+              </Pressable>
+            </View>:<View></View>}
+            </View>
    <View style={styles.spacetop}></View>
      {projectData?.design ?
             <View style={styles.button2}>
@@ -196,7 +204,6 @@ const getCompletionPercentage = () => {
 }
 const styles = StyleSheet.create({
   cardlayout: {
-    marginTop: 45,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -295,12 +302,28 @@ const styles = StyleSheet.create({
     elevation: 3,
     backgroundColor: "#FF0000",
   },
+  buttonwhite: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    elevation: 3,
+    backgroundColor: "#FFF",
+  },
   text: {
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "bold",
     letterSpacing: 0.25,
     color: "white",
+  },
+  textblue: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "#3734A9",
   },
   space: {
     paddingLeft: 10,

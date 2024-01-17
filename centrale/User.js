@@ -63,6 +63,7 @@ export default function User({ navigation }) {
                   </View>
                 </Pressable>
                 </View>
+                <View style={styles.spacetop}></View>
               </>
             )}
             {/* Data shown to teachers */}
@@ -105,8 +106,8 @@ export default function User({ navigation }) {
                       <Text style={styles.cardtext}>Marks</Text>
                     </View>
                   </Pressable>
-                  <View style={styles.spacetop}></View>
                 </View>
+                <View style={styles.spacetop}></View>
               </>
             )}
              {/* Data shown to teachers */}

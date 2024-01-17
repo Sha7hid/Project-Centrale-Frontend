@@ -57,7 +57,7 @@ export default function TeacherMarks({navigation}) {
     }
     return "Loading Student Data...";
   };
-console.log(studentsData)
+
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
@@ -68,7 +68,7 @@ console.log(studentsData)
         <>
         <View key={data.id} style={styles.card}>
           <Text>Id: {data.id}</Text>
-          <Text>Student Name: {getStudentName(data.studentId)}</Text>
+          <Text>Student Name: {getStudentName(data.studentid)}</Text>
           <Text >Synopsis: {data.synopsis? data.synopsis: 0}</Text>
           <Text >Design: {data.design? data.design: 0}</Text>
           <Text>First Presentation: {data?.first_presentation ? data?.first_presentation : 0}</Text>
