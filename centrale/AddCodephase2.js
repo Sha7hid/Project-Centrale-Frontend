@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddCodephase2({navigation}) {
@@ -8,6 +8,27 @@ export default function AddCodephase2({navigation}) {
     const [projectData,setProjectData] = useState(null)
     const [link,setLink] = useState(null)
     const [success,setSuccess] = useState(false);
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    const onRefresh = React.useCallback(async () => {
+      setRefreshing(true);
+    
+      try {
+        const data = await fetchProjectData(teamData?.id);
+        
+        // Assuming fetchProjectData resolves with the actual data
+        setProjectData(data);
+    
+        setSuccess(false);
+        setLink('');
+      } catch (error) {
+        console.error('Error fetching project data:', error);
+      } finally {
+        setTimeout(() => {
+          setRefreshing(false);
+        }, 2000);
+      }
+    }, [teamData?.id]);
     const handleSubmit = () => {
      
       const apiUrl = `https://centrale.onrender.com/project/codephase2/update/teamid/${teamData.id}`;
@@ -77,6 +98,11 @@ export default function AddCodephase2({navigation}) {
   }, []);
 
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Add Url Of 100% Coding</Text>
         <View style={styles.spacetop}></View>
@@ -84,7 +110,7 @@ export default function AddCodephase2({navigation}) {
         <View style={styles.spacetop}></View>
         <Text style={styles.text}>check the file by clicking on the link</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setLink(text)} placeholder="google drive link"/>
+     <TextInput style={styles.input} value={link} onChangeText={text => setLink(text)} placeholder="google drive link"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
@@ -103,6 +129,8 @@ export default function AddCodephase2({navigation}) {
           }
             </View>
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

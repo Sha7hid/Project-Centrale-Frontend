@@ -3,6 +3,7 @@ import {
   Button,
   Linking,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -23,6 +24,30 @@ export default function ProjectStatus({ navigation }) {
   const[success3, setSuccess3] = useState(null)
   const[success4, setSuccess4] = useState(null)
   const[success5, setSuccess5] = useState(null)
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+  
+    try {
+      const data = await fetchProjectData(teamData?.id);
+      
+      // Assuming fetchProjectData resolves with the actual data
+      setProjectData(data);
+  
+      setSuccess(false);
+      setSuccess2(false);
+      setSuccess3(false);
+      setSuccess4(false);
+      setSuccess5(false);
+    } catch (error) {
+      console.error('Error fetching project data:', error);
+    } finally {
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    }
+  }, [teamData?.id]);
   // const [pdfPath, setPdfPath] = React.useState(null);
   // const downloadPDF = async () => {
   //   const fileURL = 'YOUR_GOOGLE_DRIVE_PUBLIC_PDF_URL'; // Replace with the public file URL
@@ -215,7 +240,7 @@ export default function ProjectStatus({ navigation }) {
  
 console.log(projectData)
 const getCompletionPercentage = () => {
-    if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2 && projectData?.final_presentation && projectData?.report) {
+    if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2 && projectData?.final_presentation && projectData?.reportApproval) {
       return <Text style={styles.cardtext}>100%</Text>; 
     } else if (projectData?.synopsisApproval && projectData?.designApproval && projectData?.first_presentation && projectData?.codephase1Approval && projectData?.second_presentation && projectData?.codephase2Approval && projectData?.final_presentation) {
       return <Text style={styles.cardtext}>88%</Text>;
@@ -239,7 +264,10 @@ const getCompletionPercentage = () => {
 console.log(studentData)
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+       refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
         <View style={styles.container}>
             <Text style={styles.textstyles}>Project Status</Text>
             <View style={styles.spacetop}></View>
@@ -270,7 +298,7 @@ console.log(studentData)
               </Pressable>
             </View>:<View></View>}
             </View>
-            {success?<Text style={styles.text}>Approved Successfully</Text>:<Text></Text>}
+            {success?<Text style={styles.text}>Approved Successfully🎊</Text>:<Text></Text>}
    <View style={styles.spacetop}></View>
    <View style={styles.cardlayout}>
      {projectData?.design ?
@@ -289,7 +317,7 @@ console.log(studentData)
               </Pressable>
             </View>:<View></View>}
 </View>
-{success2?<Text style={styles.text}>Approved Successfully</Text>:<Text></Text>}
+{success2?<Text style={styles.text}>Approved Successfully🎊</Text>:<Text></Text>}
    <View style={styles.spacetop}></View>
    <View style={styles.cardlayout}>
      {projectData?.codephase1 ?
@@ -308,7 +336,7 @@ console.log(studentData)
               </Pressable>
             </View>:<View></View>}
 </View>
-{success3?<Text style={styles.text}>Approved Successfully</Text>:<Text></Text>}
+{success3?<Text style={styles.text}>Approved Successfully🎊</Text>:<Text></Text>}
    <View style={styles.spacetop}></View>
    <View style={styles.cardlayout}>
 {projectData?.codephase2 ?
@@ -327,7 +355,7 @@ console.log(studentData)
               </Pressable>
             </View>:<View></View>}
 </View>
-{success4?<Text style={styles.text}>Approved Successfully</Text>:<Text></Text>}
+{success4?<Text style={styles.text}>Approved Successfully🎊</Text>:<Text></Text>}
    <View style={styles.spacetop}></View>
    <View style={styles.cardlayout}>
    {projectData?.report ?
@@ -346,7 +374,7 @@ console.log(studentData)
               </Pressable>
             </View>:<View></View>}
 </View>
-{success5?<Text style={styles.text}>Approved Successfully</Text>:<Text></Text>}
+{success5?<Text style={styles.text}>Approved Successfully🎊</Text>:<Text></Text>}
         </View>
       </ScrollView>
     </SafeAreaView>

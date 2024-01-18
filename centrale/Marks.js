@@ -1,12 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function Marks({ navigation }) {
   const [studentData, setStudentData] = useState(null);
   const [MarkData, setMarkData] = useState(null);
   const [deleteResult, setDeleteResult] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
 
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    if (studentData != null) {
+      const api = `https://centrale.onrender.com/mark/studentid/${studentData?.id}`;
+
+      fetch(api)
+        .then(response => response.json())
+        .then(data => setMarkData(data))
+        .catch(error => {
+          // Handle any errors that occur during the fetch
+          console.error('Error:', error);
+        }); }
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, [studentData]);
 
   useEffect(() => {
     // Replace the URL with your actual API endpoint
@@ -42,7 +60,10 @@ export default function Marks({ navigation }) {
   console.log(MarkData)
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+       refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
         <View style={styles.container}>
           {MarkData ? <>
             <View key={MarkData?.id} style={styles.card3}>

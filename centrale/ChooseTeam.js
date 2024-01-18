@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -16,6 +17,23 @@ export default function ChooseTeam({ navigation }) {
   const [studentData,setStudentData] = useState(null)
   const [teamId,setTeamId] = useState(null)
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+  
+    try {
+     await fetchTeamsData();
+      setSuccess(false);
+      setTeamId('');
+    } catch (error) {
+      console.error('Error fetching project data:', error);
+    } finally {
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    }
+  }, []);
   const handleSubmit = () => {
    
     const apiUrl = `https://centrale.onrender.com/team/teacherId/update/id/${teamId}`;
@@ -96,10 +114,13 @@ export default function ChooseTeam({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
         <View style={styles.container}>
             <Text style={styles.textstyles}>Enter your Team Id</Text>
-            <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="Team ID"/>
+            <TextInput style={styles.input} value={teamId} onChangeText={text => setTeamId(text)} placeholder="Team ID"/>
             <Pressable style={styles.button2} onPress={handleSubmit}>
                 <Text style={styles.text}>Submit</Text>
             </Pressable>

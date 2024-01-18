@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -10,6 +10,17 @@ export default function AddSynopsisMark({navigation}) {
   const [studentid,setStudentid] = useState(null)
   const [mark,setMark] = useState(null)
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+      setSuccess(false);
+      setMark('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
     const handleSubmit = () => {
      
       const apiUrl = `https://centrale.onrender.com/mark/synopsis/update/studentid/${studentid}`;
@@ -84,7 +95,10 @@ export default function AddSynopsisMark({navigation}) {
   console.log(studentid)
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Add Mark For Synopsis</Text>
         <View style={styles.spacetop}></View>
@@ -100,7 +114,7 @@ export default function AddSynopsisMark({navigation}) {
           <Picker.Item key={student.id} label={student.name} value={student.id} />
         ))}
       </Picker>
-     <TextInput style={styles.input} onChangeText={text => setMark(text)} placeholder="mark"/>
+     <TextInput style={styles.input} value={mark} onChangeText={text => setMark(text)} placeholder="mark"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>

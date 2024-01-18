@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -17,6 +18,27 @@ export default function ChooseTopic({ navigation }) {
   const [projectData,setProjectData] = useState(null)
   const [name,setName] = useState(null)
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+  
+    try {
+      const data = await fetchProjectData(teamData?.id);
+      
+      // Assuming fetchProjectData resolves with the actual data
+      setProjectData(data);
+  
+      setSuccess(false);
+      setName('');
+    } catch (error) {
+      console.error('Error fetching project data:', error);
+    } finally {
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    }
+  }, [teamData?.id]);
   const handleSubmit = () => {
    
     const apiUrl = `https://centrale.onrender.com/project/name/update/teamid/${teamData.id}`;
@@ -89,14 +111,17 @@ export default function ChooseTopic({ navigation }) {
 console.log(projectData)
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
         <View style={styles.container}>
             <Text style={styles.textstyles}>Enter Your Project Name</Text>
             <View style={styles.spacetop}></View>
             <Text style={styles.text}>You can also update existing project name</Text>
             <Text style={styles.text}>which is given below</Text>
             <View style={styles.spacetop}></View>
-            <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="project name"/>
+            <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="project name"/>
             <Pressable style={styles.button2} onPress={handleSubmit} >
                 <Text style={styles.text}>Submit</Text>
             </Pressable>

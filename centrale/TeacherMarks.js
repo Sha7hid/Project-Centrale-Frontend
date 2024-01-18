@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function TeacherMarks({navigation}) {
@@ -7,8 +7,13 @@ export default function TeacherMarks({navigation}) {
   const [studentsData, setStudentsData] = useState(null);
   const [markdata,setMarkdata] = useState(null)
   const [deleteResult, setDeleteResult] = useState(false);
-
-
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
  const apiUrl = `https://centrale.onrender.com/marks`;
@@ -60,7 +65,10 @@ export default function TeacherMarks({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
       <Text style={styles.textstyles}>Student Marks</Text>
       <View style={styles.spacetop}></View>
