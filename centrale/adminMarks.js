@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminMarks({navigation}) {
@@ -7,6 +7,24 @@ export default function AdminMarks({navigation}) {
   const [studentsData, setStudentsData] = useState(null);
   const [deleteResult, setDeleteResult] = useState(false);
   const [studentsDetails, setStudentsDetails] = useState([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    const apiUrl = `https://centrale.onrender.com/marks`;
+  
+ fetch(apiUrl)
+   .then(response => response.json())
+.then(data => setStudentsData(data))
+   .catch(error => {
+     // Handle any errors that occur during the fetch
+     console.error('Error:', error);
+   });
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const fetchStudentDetails = async (studentId) => {
     const apiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
   
@@ -58,7 +76,10 @@ export default function AdminMarks({navigation}) {
   }, [studentsData]);
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
       <Pressable onPress={() => navigation.navigate('addnewmark')} style={styles.button2}>
         <Text style={styles.text}>Add New Mark</Text>

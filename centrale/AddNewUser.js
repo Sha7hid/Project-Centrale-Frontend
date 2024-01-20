@@ -27,7 +27,8 @@ export default function AddNewUser({navigation}) {
     fetch(checkUrl)
       .then(response => response.json())
       .then(existingUser => {
-        if (existingUser) {
+        console.log(existingUser)
+        if ( existingUser.email == email) {
           // User with the same email already exists, handle accordingly
           console.log('User with this email already exists:', existingUser);
           setError(true)

@@ -1,10 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminProject({navigation}) {
   const [projectData, setprojectData] = useState(null);
   const [TeamDetails, setTeamDetails] = useState([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    const apiUrl = `https://centrale.onrender.com/projects`;
+  
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setprojectData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const fetchTeamDetails = async (teamId) => {
     const apiUrl = `https://centrale.onrender.com/team/id/${teamId}`;
   
@@ -43,7 +61,10 @@ export default function AdminProject({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
       <Pressable onPress={() => navigation.navigate('addnewproject')} style={styles.button2}>
         <Text style={styles.text}>Add New Project</Text>
