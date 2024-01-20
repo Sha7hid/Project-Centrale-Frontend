@@ -20,7 +20,7 @@ export default function User({ navigation }) {
   }, []);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
     <ScrollView>
     <View style={styles.container}>
       {/* Render your component with studentData */}
@@ -138,8 +138,6 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                 </View>
-                
-               
               </>
             )}
           </View>
