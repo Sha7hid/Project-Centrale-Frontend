@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 export default function TeacherMarks({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [studentsData, setStudentsData] = useState(null);
@@ -62,7 +64,36 @@ export default function TeacherMarks({navigation}) {
     }
     return "Loading Student Data...";
   };
-
+  const exportToExcel = async () => {
+    try {
+      // Create a CSV string from the markdata including student names
+      const csvData = markdata.map(data => {
+        const studentName = getStudentName(data.studentid);
+        // Rearrange the order of fields to have student name as the first column
+        return Object.values({ studentName, ...data }).join(',');
+      });
+  
+      // Create a CSV header including "Student Name" field
+      const header = Object.keys({ studentName: '', ...markdata[0] }).join(',');
+  
+      // Combine header and CSV data
+      const csv = `${header}\n${csvData.join('\n')}`;
+  
+      // Define the file path
+      const path = FileSystem.documentDirectory + 'student_marks.csv';
+  
+      // Write CSV data to file
+      await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
+  
+      // Share the file
+      await Sharing.shareAsync(path, { mimeType: 'text/csv', dialogTitle: 'Share this CSV file' });
+  
+    } catch (error) {
+      console.error('Error exporting data:', error);
+    }
+  };
+  
+  
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView
@@ -71,6 +102,9 @@ export default function TeacherMarks({navigation}) {
     }>
     <View style={styles.container}>
       <Text style={styles.textstyles}>Student Marks</Text>
+     <Pressable onPress={exportToExcel} style={styles.button2}>
+      <Text style={styles.text}>Export To Excel</Text>
+     </Pressable>
       <View style={styles.spacetop}></View>
 {markdata?.map((data) =>(
         <>
