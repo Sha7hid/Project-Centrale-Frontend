@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Button,
   Linking,
   Pressable,
   RefreshControl,
   SafeAreaView,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -13,8 +15,10 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-// import RNFS from 'react-native-fs';
-// import { PDFView } from 'react-native-pdf';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 export default function ProjectStatus({ navigation }) {
   const [studentData,setStudentData] = useState(null)
   const [teamData,setTeamData] = useState(null)
@@ -25,7 +29,49 @@ export default function ProjectStatus({ navigation }) {
   const[success4, setSuccess4] = useState(null)
   const[success5, setSuccess5] = useState(null)
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const extractContentFromGoogleDriveDoc = async (docUrl) => {
+    try {
+      // Fetch content from Google Drive
+      const response = await fetch(docUrl);
+      const content = await response.text();
+  
+      // Log fetched content
+      console.log('Fetched content:', content);
+  
+      // Convert content to PDF
+      const pdf = await Print.printToFileAsync({
+        html: content,
+      });
+  
+      // Log generated PDF file URI
+      console.log('Generated PDF URI:', pdf.uri);
+  
+      // Share PDF file
+      await sharePDF(pdf.uri);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to extract content from Google Drive document');
+    }
+  };
+  
+  const sharePDF = async (pdfUri) => {
+    try {
+      // Create a directory for storing PDF files
+      const directory = `${FileSystem.cacheDirectory}pdfs/`;
+      await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
+  
+      // Move the PDF file to the directory
+      const fileName = 'document.pdf';
+      const newPath = `${directory}${fileName}`;
+      await FileSystem.moveAsync({ from: pdfUri, to: newPath });
+  
+      // Share PDF file
+      await Sharing.shareAsync(newPath);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to share PDF file');
+    }
+  };
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
   
@@ -48,40 +94,7 @@ export default function ProjectStatus({ navigation }) {
       }, 2000);
     }
   }, [teamData?.id]);
-  // const [pdfPath, setPdfPath] = React.useState(null);
-  // const downloadPDF = async () => {
-  //   const fileURL = 'YOUR_GOOGLE_DRIVE_PUBLIC_PDF_URL'; // Replace with the public file URL
 
-  //   try {
-  //     const { dirs } = RNFS;
-  //     const pdfPath = `${dirs.DocumentDir}/temp.pdf`;
-
-  //     const options = {
-  //       fromUrl: fileURL,
-  //       toFile: pdfPath,
-  //     };
-
-  //     const response = await RNFS.downloadFile(options);
-  //     console.log('PDF downloaded:', pdfPath);
-  //     setPdfPath(pdfPath);
-  //   } catch (error) {
-  //     console.error('Error downloading PDF:', error);
-  //   }
-  // };
-
-  // const extractTextFromPDF = async () => {
-  //   try {
-  //     const text = await PDFView.asText({
-  //       path: pdfPath,
-  //       scale: 1.0, // Adjust scale if needed
-  //     });
-
-  //     console.log('Extracted text:', text);
-  //     // Use the extracted text as needed
-  //   } catch (error) {
-  //     console.error('Error extracting text from PDF:', error);
-  //   }
-  // };
   const handleSubmit = () => {
    
     const apiUrl = `https://centrale.onrender.com/project/synopsis/approval/update/teamid/${teamData.id}`;
@@ -276,7 +289,7 @@ console.log(studentData)
             </View>
             <View style={styles.spacetop}></View>
             <View style={styles.buttonred}>
-              <Pressable>
+              <Pressable onPress={()=>extractContentFromGoogleDriveDoc(projectData?.synopsis)}>
                 <Text style={styles.text}>Generate Report</Text>
               </Pressable>
             </View>
