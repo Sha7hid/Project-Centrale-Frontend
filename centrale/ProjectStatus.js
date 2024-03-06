@@ -19,6 +19,7 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+
 export default function ProjectStatus({ navigation }) {
   const [studentData,setStudentData] = useState(null)
   const [teamData,setTeamData] = useState(null)
@@ -72,6 +73,49 @@ export default function ProjectStatus({ navigation }) {
       Alert.alert('Error', 'Failed to share PDF file');
     }
   };
+
+  // const downloadFileContent = async (driveUrl) => {
+  //   // Extract file ID from Google Drive URL
+  //   const fileId = getFileIdFromUrl(driveUrl);
+  
+  //   if (!fileId) {
+  //     console.error('Invalid Google Drive URL');
+  //     return;
+  //   }
+  
+  //   // Configure Google Sign-In (refer to library documentation)
+  //   await GoogleSignin.configure({
+  //     // Your webClientId from Google Cloud Console
+  //     webClientId: '356084205694-f9o8rrabdgva4q2edt9onek7mda7p1tn.apps.googleusercontent.com',
+  //     // Optional: Specify offline access if needed
+  //     offlineAccess: true,
+  //   });
+  
+  //   const user = await GoogleSignIn.signIn();
+  //   const accessToken = user.accessToken;
+  
+  //   try {
+  //     // Initialize Drive API with access token
+  //     GDrive.setToken(accessToken);
+  
+  //     // Download file content (replace mimeType with desired format)
+  //     const response = await GDrive.files.export({ fileId, MimeTypes: 'text/plain' });
+  //     const content = await response.text();
+  
+  //     // Handle downloaded content (e.g., display or process)
+  //     console.log('Downloaded content:', content);
+  //   } catch (error) {
+  //     console.error('Error downloading file:', error);
+  //   }
+  // };
+  
+  // // Function to extract file ID from Google Drive URL
+  // const getFileIdFromUrl = (driveUrl) => {
+  //   const regex = /(?:\/)(?:file\/d\/|open\?id=)([a-zA-Z0-9-_]+)/;
+  //   const match = driveUrl.match(regex);
+  //   return match ? match[1] : null;
+  // };
+  
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
   
