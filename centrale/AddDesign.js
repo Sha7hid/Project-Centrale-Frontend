@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddDesign({navigation}) {
@@ -30,7 +30,12 @@ export default function AddDesign({navigation}) {
       }
     }, [teamData?.id]);
     const handleSubmit = () => {
-     
+      const driveLinkPattern = /^https?:\/\/docs.google.com\/(?:document\/d\/|open\?id=)([\w-]+)(?:\/edit.*)?$/;
+      // Check if the link is empty or doesn't match the pattern
+      if (!link || !driveLinkPattern.test(link)) {
+        Alert.alert('Validation Error','Invalid Google Drive link format');
+        return;
+      }
       const apiUrl = `https://centrale.onrender.com/project/design/update/teamid/${teamData.id}`;
     
       const requestData = {
@@ -45,12 +50,12 @@ export default function AddDesign({navigation}) {
         body: JSON.stringify(requestData),
       })
         .then(response => response.json())
-        .then(setSuccess(true))
+        .then(Alert.alert('🎊','Successfully Added Design'))
         .catch(error => {
           // Handle any errors that occur during the fetch
           console.error('Error:', error);
         });
-       
+       onRefresh()
     };
     const fetchProjectData = (teamId) => {
       const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
@@ -115,8 +120,6 @@ export default function AddDesign({navigation}) {
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Design 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
             <View style={styles.card}>
               {projectData?.design?

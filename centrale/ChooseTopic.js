@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Button,
   Pressable,
   RefreshControl,
@@ -17,9 +19,9 @@ export default function ChooseTopic({ navigation }) {
   const [teamData,setTeamData] = useState(null)
   const [projectData,setProjectData] = useState(null)
   const [name,setName] = useState(null)
-  const [success,setSuccess] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
 
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [animating,setAnimating] = useState(false);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
   
@@ -28,8 +30,6 @@ export default function ChooseTopic({ navigation }) {
       
       // Assuming fetchProjectData resolves with the actual data
       setProjectData(data);
-  
-      setSuccess(false);
       setName('');
     } catch (error) {
       console.error('Error fetching project data:', error);
@@ -40,7 +40,7 @@ export default function ChooseTopic({ navigation }) {
     }
   }, [teamData?.id]);
   const handleSubmit = () => {
-   
+   setAnimating(true)
     const apiUrl = `https://centrale.onrender.com/project/name/update/teamid/${teamData.id}`;
   
     const requestData = {
@@ -55,18 +55,18 @@ export default function ChooseTopic({ navigation }) {
       body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Submitted Project Name'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-     
+     setAnimating(false)
   };
   const fetchProjectData = (teamId) => {
     const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
     fetch(apiUrl)
       .then(response => response.json())
-      .then(data => setProjectData(data))
+      .then(data => setProjectData(data)).then(setAnimating(false))
       .catch(error => {
         console.error('Error:', error);
       });
@@ -78,6 +78,7 @@ export default function ChooseTopic({ navigation }) {
     }
   }, [teamData]);
   const fetchData = (studentId) => {
+    setAnimating(true)
     const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
     fetch(apiUrl)
       .then(response => response.json())
@@ -125,8 +126,7 @@ console.log(projectData)
             <Pressable style={styles.button2} onPress={handleSubmit} >
                 <Text style={styles.text}>Submit</Text>
             </Pressable>
-            <View style={styles.spacetop}></View>
-            {success?<Text style={styles.text}>Successfully Submitted Project Name🎊</Text>:<Text></Text>}
+            <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
             <View style={styles.spacetop}></View>
             <View style={styles.card}>
               {projectData?.name?

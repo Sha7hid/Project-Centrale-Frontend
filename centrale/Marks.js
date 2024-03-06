@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function Marks({ navigation }) {
@@ -7,7 +7,7 @@ export default function Marks({ navigation }) {
   const [MarkData, setMarkData] = useState(null);
   const [deleteResult, setDeleteResult] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     if (studentData != null) {
@@ -38,13 +38,12 @@ export default function Marks({ navigation }) {
           // Handle any errors that occur during the fetch
           console.error('Error:', error);
         });
+      
     }
 
 
   }, [studentData]);
   useEffect(() => {
-
-
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
       .then((data) => {
@@ -57,6 +56,12 @@ export default function Marks({ navigation }) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
+useEffect(() => {
+  if(MarkData){
+    setAnimating(false)
+  }
+
+},[MarkData])
   console.log(MarkData)
   return (
     <SafeAreaView style={styles.container}>
@@ -65,6 +70,7 @@ export default function Marks({ navigation }) {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }>
         <View style={styles.container}>
+        <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
           {MarkData ? <>
             <View key={MarkData?.id} style={styles.card3}>
               <Text style={styles.text}>Synopsis: {MarkData?.synopsis ? MarkData?.synopsis : 0}</Text>
@@ -139,12 +145,15 @@ const styles = StyleSheet.create({
   },
   card3:{
     backgroundColor: "#E652FF",
-    paddingLeft: 40,
-    paddingRight: 40,
+    paddingLeft: 30,
+    paddingRight: 30,
     paddingTop: 30,
     paddingBottom: 30,
     borderRadius: 20,
+    flexDirection: "row",
+    justifyContent: "center",
     textAlign: "center",
+    width:'100%',
   },
   cardtext: {
     color: "#3734A9",

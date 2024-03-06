@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Button,
   Pressable,
   RefreshControl,
@@ -18,7 +19,7 @@ export default function ChooseTeam({ navigation }) {
   const [teamId,setTeamId] = useState(null)
   const [success,setSuccess] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
   
@@ -111,7 +112,14 @@ export default function ChooseTeam({ navigation }) {
       console.error("Error:", error);
     }
   };
-
+  useEffect(() => {
+    if (teamsData) {
+    setTimeout(() => {
+        setAnimating(false);
+      }, 8000); 
+    }
+  
+  },[teamsData])
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -124,11 +132,11 @@ export default function ChooseTeam({ navigation }) {
             <Pressable style={styles.button2} onPress={handleSubmit}>
                 <Text style={styles.text}>Submit</Text>
             </Pressable>
-           
             {success?<Text style={styles.text}>Successfully Choosed Your Team🎊</Text>:<Text></Text>}
             <View style={styles.spacetop}></View>
             <Text style={styles.text}>look through to see if you have already </Text>
             <Text style={styles.text}>choosed a team</Text>
+            <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
           {teamsData.map((team) => (
             <>
              <View style={styles.spacetop}></View>
@@ -163,12 +171,13 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingTop: 80,
-    paddingBottom: 80,
+    paddingLeft: 30,
+    paddingRight: 30,
+    paddingTop: 40,
+    paddingBottom: 40,
     borderRadius: 20,
     textAlign: "center",
+    width:'85%'
   },
   card2: {
     backgroundColor: "#fff",

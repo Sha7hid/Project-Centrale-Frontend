@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddCodephase1({navigation}) {
@@ -45,12 +45,12 @@ export default function AddCodephase1({navigation}) {
         body: JSON.stringify(requestData),
       })
         .then(response => response.json())
-        .then(setSuccess(true))
+        .then(Alert.alert('🎊','Successfully Added 50% Coding'))
         .catch(error => {
           // Handle any errors that occur during the fetch
           console.error('Error:', error);
         });
-       
+       onRefresh()
     };
     const fetchProjectData = (teamId) => {
       const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
@@ -110,13 +110,11 @@ export default function AddCodephase1({navigation}) {
         <View style={styles.spacetop}></View>
         <Text style={styles.text}>check the file by clicking on the link</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} value={link} onChangeText={text => setLink(text)} placeholder="google drive link"/>
+     <TextInput style={styles.input} value={link} onChangeText={text => setLink(text)} placeholder="github repo link"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added 50% Coding 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
             <View style={styles.card}>
               {projectData?.codephase1?
