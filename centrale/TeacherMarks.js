@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import * as FileSystem from 'expo-file-system';
@@ -10,6 +10,7 @@ export default function TeacherMarks({navigation}) {
   const [markdata,setMarkdata] = useState(null)
   const [deleteResult, setDeleteResult] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
@@ -22,7 +23,9 @@ export default function TeacherMarks({navigation}) {
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setMarkdata(data))
+.then(data => setMarkdata(data)).then( setTimeout(() => {
+  setAnimating(false);
+}, 2000))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
@@ -102,10 +105,12 @@ export default function TeacherMarks({navigation}) {
     }>
     <View style={styles.container}>
       <Text style={styles.textstyles}>Student Marks</Text>
+      <View style={styles.spacetop}></View>
      <Pressable onPress={exportToExcel} style={styles.button2}>
       <Text style={styles.text}>Export To Excel</Text>
      </Pressable>
       <View style={styles.spacetop}></View>
+      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
 {markdata?.map((data) =>(
         <>
         <View key={data.id} style={styles.card}>
@@ -149,6 +154,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
+    width:'90%'
   },
   card2:{
 backgroundColor: "#fff",

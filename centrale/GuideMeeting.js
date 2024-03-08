@@ -26,6 +26,10 @@ export default function GuideMeeting({navigation}) {
         Alert.alert('Validation Error','mark should be a number');
         return;
       }
+      if(studentid===null) {
+        Alert.alert('Selection Needed','A student must be selected');
+        return;
+      }
       const apiUrl = `https://centrale.onrender.com/mark/attendance/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {

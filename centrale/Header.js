@@ -9,14 +9,14 @@ const Header = (props) => {
       {props.name == "1" ? (
         <>
           <Image
-            style={{ height: 45, width: 45,marginLeft:150}}
+            style={{ height: 25, width: 25,marginLeft:180}}
             source={require("./assets/search.png")}
           />
           <Pressable
           onPress={() => navigation.navigate('profile')}
           >
           <Image
-            style={{ height: 45, width: 45,marginLeft:30}}
+            style={{ height: 25, width: 25,marginLeft:30}}
             source={require("./assets/profile.png")}
           />
           </Pressable>

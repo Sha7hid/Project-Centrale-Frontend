@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -22,7 +22,14 @@ export default function AddFinalMark({navigation}) {
     
   }, []);
     const handleSubmit = () => {
-     
+      if (isNaN(mark)) {
+        Alert.alert('Validation Error','mark should be a number');
+        return;
+      }
+      if(studentid===null) {
+        Alert.alert('Selection Needed','A student must be selected');
+        return;
+      }
       const apiUrl = `https://centrale.onrender.com/mark/final_presentation/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
@@ -37,7 +44,7 @@ export default function AddFinalMark({navigation}) {
         body: JSON.stringify(requestData),
       })
         .then(response => response.json())
-        .then(setSuccess(true))
+        .then(Alert.alert('🎊','Successfully Added Final Presentation Mark'))
         .catch(error => {
           // Handle any errors that occur during the fetch
           console.error('Error:', error);
@@ -110,6 +117,7 @@ export default function AddFinalMark({navigation}) {
         selectedValue={studentid}
         onValueChange={(itemValue, itemIndex) => setStudentid(itemValue)}
       >
+
         <Picker.Item label="Select a student" value={null} />
         {filteredData?.map((student) => (
           <Picker.Item key={student.id} label={student.name} value={student.id} />
@@ -121,8 +129,7 @@ export default function AddFinalMark({navigation}) {
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Final Presentation Mark 🎊</Text>:<Text></Text>}
-     <View style={styles.spacetop}></View>
+
             {/* <View style={styles.card}>
               {projectData?.synopsis?
               <Pressable>

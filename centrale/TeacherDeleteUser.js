@@ -3,8 +3,10 @@ import { Alert, Button, Pressable, StyleSheet, Text, TextInput, View } from "rea
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
-export default function DeleteUser({navigation}) {
-  const [studentData, setStudentData] = useState(null);
+export default function TeacherDeleteUser({navigation}) {
+    const [studentsData,setStudentsData] = useState(null)
+    const [studentData,setStudentData] = useState(null)
+    const [TeamData,setTeamData] = useState(null)
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const showAlert = () =>{
@@ -39,25 +41,61 @@ export default function DeleteUser({navigation}) {
      
     fetch(apiUrl)
       .then(response => response.json())
-   .then(data => setStudentData(data))
+   .then(data => setStudentsData(data))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
    
      },[]);
-console.log(userId)
+
+
+     const fetchData = (studentId) => {
+      const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => setTeamData(data))
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    };
+    
+    useEffect(() => {
+      if (studentData) {
+        fetchData(studentData.id);
+      }
+    }, [studentData]);
+useEffect(() => {
+// Fetch student data from AsyncStorage when the component mounts
+AsyncStorage.getItem("studentData")
+  .then((data) => {
+    if (data) {
+      const parsedData = JSON.parse(data);
+      setStudentData(parsedData);
+    }
+  })
+  .catch((error) => {
+    console.error("Error fetching student data from AsyncStorage:", error);
+  });
+}, []);
+const filteredData = studentsData?.filter((data) => {
+return (
+  data.type === 'student' &&
+  (data.id === TeamData?.studentId1 || data.id === TeamData?.studentId2 || data.id === TeamData?.studentId3)
+);
+});
+
   return (
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Select the User to delete</Text>
+        <Text style={styles.textstyles}>Select the Student to delete</Text>
         <View style={styles.spacetop}></View>
      <Picker
         style={styles.input}
         selectedValue={userId}
         onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
       >
-        <Picker.Item label="Select a user" value={null} />
-        {studentData?.map((student) => (
+        <Picker.Item label="Select a student" value={null} />
+        {filteredData?.map((student) => (
           <Picker.Item key={student.id} label={student.name} value={student.id} />
         ))}
       </Picker>

@@ -106,6 +106,12 @@ export default function User({ navigation }) {
                       <Text style={styles.cardtext}>Marks</Text>
                     </View>
                   </Pressable>
+                  <View style={styles.space}></View>
+                  <Pressable onPress={() => navigation.navigate('teacherusers')}>
+                    <View style={styles.card}>
+                      <Text style={styles.cardtext}>Student</Text>
+                    </View>
+                  </Pressable>
                 </View>
                 <View style={styles.spacetop}></View>
               </>
@@ -168,7 +174,7 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingBottom: 80,
     borderRadius: 20,
-    textAlign: "center",
+    textAlign: "center"
   },
   cardadmin: {
     backgroundColor: "#fff",

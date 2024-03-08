@@ -46,6 +46,9 @@ import AddReportMark from './AddReportMark';
 import GuideMeeting from './GuideMeeting';
 import Marks from './Marks';
 import TeacherMarks from './TeacherMarks';
+import TeacherUsers from './TeacherUsers';
+import TeacherAddNewUser from './TeacherAddNewUser';
+import TeacherDeleteUser from './TeacherDeleteUser';
 
 
 const Stack = createNativeStackNavigator();
@@ -374,6 +377,30 @@ function App() {
             height: 120,
           }
         }} component={TeacherMarks} />
+               <Stack.Screen name="teacherusers"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherUsers} />
+            <Stack.Screen name="teacheraddnewuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherAddNewUser} />
+              <Stack.Screen name="teacherdeleteuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherDeleteUser} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>
