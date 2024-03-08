@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Button,
   Pressable,
   RefreshControl,
@@ -36,7 +37,10 @@ export default function ChooseTeam({ navigation }) {
     }
   }, []);
   const handleSubmit = () => {
-   
+    if (isNaN(teamId)) {
+      Alert.alert('Validation Error','Team ID should be a number');
+      return;
+    }
     const apiUrl = `https://centrale.onrender.com/team/teacherId/update/id/${teamId}`;
   
     const requestData = {
@@ -51,12 +55,12 @@ export default function ChooseTeam({ navigation }) {
       body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Choosed Your Team'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-     
+     onRefresh()
   };
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
@@ -132,7 +136,6 @@ export default function ChooseTeam({ navigation }) {
             <Pressable style={styles.button2} onPress={handleSubmit}>
                 <Text style={styles.text}>Submit</Text>
             </Pressable>
-            {success?<Text style={styles.text}>Successfully Choosed Your Team🎊</Text>:<Text></Text>}
             <View style={styles.spacetop}></View>
             <Text style={styles.text}>look through to see if you have already </Text>
             <Text style={styles.text}>choosed a team</Text>

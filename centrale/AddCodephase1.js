@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert, ActivityIndicator} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddCodephase1({navigation}) {
@@ -9,7 +9,7 @@ export default function AddCodephase1({navigation}) {
     const [link,setLink] = useState(null)
     const [success,setSuccess] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
-
+    const [animating,setAnimating] = useState(false);
     const onRefresh = React.useCallback(async () => {
       setRefreshing(true);
     
@@ -30,7 +30,11 @@ export default function AddCodephase1({navigation}) {
       }
     }, [teamData?.id]);
     const handleSubmit = () => {
-     
+      const githubLinkPattern = /^https?:\/\/github\.com\/[\w-]+\/[\w-]+$/;
+      if (!link || !githubLinkPattern.test(link)) {
+        Alert.alert('Validation Error','Invalid Github link format');
+        return;
+      }
       const apiUrl = `https://centrale.onrender.com/project/codephase1/update/teamid/${teamData.id}`;
     
       const requestData = {
@@ -56,7 +60,7 @@ export default function AddCodephase1({navigation}) {
       const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
       fetch(apiUrl)
         .then(response => response.json())
-        .then(data => setProjectData(data))
+        .then(data => setProjectData(data)).then(setAnimating(false))
         .catch(error => {
           console.error('Error:', error);
         });
@@ -68,6 +72,7 @@ export default function AddCodephase1({navigation}) {
       }
     }, [teamData]);
     const fetchData = (studentId) => {
+      setAnimating(true)
       const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
       fetch(apiUrl)
         .then(response => response.json())
@@ -115,6 +120,7 @@ export default function AddCodephase1({navigation}) {
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
+     <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
      <View style={styles.spacetop}></View>
             <View style={styles.card}>
               {projectData?.codephase1?

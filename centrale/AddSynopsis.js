@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, ScrollView, RefreshControl, SafeAreaView, Alert} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, ScrollView, RefreshControl, SafeAreaView, Alert, ActivityIndicator} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AddSynopsis({navigation}) {
@@ -9,6 +9,7 @@ export default function AddSynopsis({navigation}) {
     const [link,setLink] = useState(null)
     const [success,setSuccess] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
+    const [animating,setAnimating] = useState(false);
 
     const onRefresh = React.useCallback(async () => {
       setRefreshing(true);
@@ -62,7 +63,7 @@ export default function AddSynopsis({navigation}) {
       const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
       fetch(apiUrl)
         .then(response => response.json())
-        .then(data => setProjectData(data))
+        .then(data => setProjectData(data)).then(setAnimating(false))
         .catch(error => {
           console.error('Error:', error);
         });
@@ -74,6 +75,7 @@ export default function AddSynopsis({navigation}) {
       }
     }, [teamData]);
     const fetchData = (studentId) => {
+      setAnimating(true)
       const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
       fetch(apiUrl)
         .then(response => response.json())
@@ -121,6 +123,7 @@ console.log(teamData)
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
+     <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
      <View style={styles.spacetop}></View>
             <View style={styles.card}>
               {projectData?.synopsis?

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, ToastAndroid, View } from 'react-native'
 import { useCallback } from "react";
 import { useFonts } from "expo-font";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,6 +36,7 @@ const [animating,setAnimating] = useState(false);
     }
     const apiUrl = `https://centrale.onrender.com/user/email/${email}`;
     setAnimating(true)
+    ToastAndroid.show('loading..',ToastAndroid.LONG)
     fetch(apiUrl, {
       method: 'GET', // Assuming you want to fetch student data based on email
       headers: {

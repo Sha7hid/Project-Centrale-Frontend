@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Button,
   Linking,
@@ -30,6 +31,7 @@ export default function ProjectStatus({ navigation }) {
   const[success4, setSuccess4] = useState(null)
   const[success5, setSuccess5] = useState(null)
   const [refreshing, setRefreshing] = React.useState(false);
+  const [animating,setAnimating] = useState(false);
   const extractContentFromGoogleDriveDoc = async (docUrl) => {
     try {
       // Fetch content from Google Drive
@@ -253,7 +255,7 @@ export default function ProjectStatus({ navigation }) {
     const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
     fetch(apiUrl)
       .then(response => response.json())
-      .then(data => setProjectData(data))
+      .then(data => setProjectData(data)).then(setAnimating(false))
       .catch(error => {
         console.error('Error:', error);
       });
@@ -265,6 +267,7 @@ export default function ProjectStatus({ navigation }) {
     }
   }, [teamData]);
   const fetchData = (studentId) => {
+    setAnimating(true)
     const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
     fetch(apiUrl)
       .then(response => response.json())
@@ -327,6 +330,7 @@ console.log(studentData)
       }>
         <View style={styles.container}>
             <Text style={styles.textstyles}>Project Status</Text>
+            <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
             <View style={styles.spacetop}></View>
             <View style={styles.card}>
               {getCompletionPercentage()}

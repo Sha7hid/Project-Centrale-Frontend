@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -22,7 +22,10 @@ export default function GuideMeeting({navigation}) {
     
   }, []);
     const handleSubmit = () => {
-     
+      if (isNaN(mark)) {
+        Alert.alert('Validation Error','mark should be a number');
+        return;
+      }
       const apiUrl = `https://centrale.onrender.com/mark/attendance/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
@@ -37,7 +40,7 @@ export default function GuideMeeting({navigation}) {
         body: JSON.stringify(requestData),
       })
         .then(response => response.json())
-        .then(setSuccess(true))
+        .then(Alert.alert('🎊','Successfully Added Attendance Mark'))
         .catch(error => {
           // Handle any errors that occur during the fetch
           console.error('Error:', error);
@@ -120,8 +123,6 @@ console.log(studentid)
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Attendance Mark 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
             {/* <View style={styles.card}>
               {projectData?.synopsis?
