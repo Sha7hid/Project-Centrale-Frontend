@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminTeam({navigation}) {
@@ -11,7 +11,7 @@ export default function AdminTeam({navigation}) {
     teacherId:'',
   });
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     const apiUrl = `https://centrale.onrender.com/teams`;
@@ -48,7 +48,9 @@ export default function AdminTeam({navigation}) {
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setTeamsData(data))
+.then(data => setTeamsData(data)).then( setTimeout(() => {
+  setAnimating(false);
+}, 2000))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
@@ -93,7 +95,7 @@ export default function AdminTeam({navigation}) {
     refreshControl={
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
-    <View style={styles.container}>
+    <View style={styles.container2}>
       <Pressable onPress={() => navigation.navigate('addnewteam')} style={styles.button2}>
         <Text style={styles.text}>Add New Team</Text>
       </Pressable>
@@ -106,7 +108,7 @@ export default function AdminTeam({navigation}) {
         <Text style={styles.text}>Update A Team</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-
+      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
 {teamsData?.map((data,index) =>(
         <>
         <View key={data.id} style={styles.card}>
@@ -149,6 +151,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
+    width:'90%'
   },
   card2:{
 backgroundColor: "#fff",
@@ -172,11 +175,11 @@ backgroundColor: "#fff",
     paddingTop: 21,
   },
   container2: {
-    backgroundColor: "#ffff",
-    paddingTop: 20,
-    paddingBottom: 80,
-    paddingLeft: 45,
-    paddingRight: 45,
+    flex: 1,
+    backgroundColor: "#3734A9",
+    alignItems: "center",
+    justifyContent: "start",
+    paddingTop: 21,
   },
   textstyles: {
     color: "white",

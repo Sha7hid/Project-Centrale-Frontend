@@ -2,61 +2,83 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-import {Picker} from '@react-native-picker/picker';
-export default function DeleteUser({navigation}) {
+export default function TeacherUpdateUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [TeamData,setTeamData] = useState(null)
   const [success,setSuccess] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     setUserId('')
+      setName('')
+      setEmail('')
+      setPassword('')
       setTimeout(() => {
         setRefreshing(false);
       }, 2000);
     
   }, []);
-  const showAlert = () =>{
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this student?', [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {text: 'OK', onPress:handleDelete},
-      ])
-  }
-  const handleDelete = async () => {
-    const apiUrl = `https://centrale.onrender.com/user/delete/${userId}`;
+  const handleSubmit = () => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    // Check if email is empty or doesn't match the pattern
+    if (!email || !emailPattern.test(email)) {
+      Alert.alert('Validation Error','Invalid email format');
+      return;
+    }
+    if (!password || password.length < 5 || password.length > 8) {
+      Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
+      return;
+    }
+    const apiUrl = `https://centrale.onrender.com/user/update/id/${userId}`;
+  
+    const requestData = {
+        name:name,
+      email: email,
+      password: password,
+      type:'student'
+    };
+  
     fetch(apiUrl, {
-      method: 'DELETE',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(Alert.alert('🎊','Successfully Deleted User'))
+      .then(Alert.alert('🎊','Successfully Updated User'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
+      console.log(studentData)
       onRefresh()
   };
   
-  useEffect(()=>{
-    // Replace the URL with your actual API endpoint
-    const apiUrl = `https://centrale.onrender.com/users`;
-     
-    fetch(apiUrl)
-      .then(response => response.json())
-   .then(data => setStudentData(data))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
-   
-     },[]);
-console.log(userId)
+  useEffect(() => {
+    if (userId != null) {
+      const apiUrl = `https://centrale.onrender.com/user/id/${userId}`;
+  
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Set the state values here
+          setStudentData(data);
+          setName(data?.name);
+          setEmail(data?.email);
+          setPassword(data?.password);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }, [userId]);
+
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView
@@ -64,22 +86,17 @@ console.log(userId)
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Select the User to delete</Text>
+        <Text style={styles.textstyles}>Enter Details of the Student</Text>
         <View style={styles.spacetop}></View>
-     <Picker
-        style={styles.input}
-        selectedValue={userId}
-        onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
-      >
-        <Picker.Item label="Select a user" value={null} />
-        {studentData?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
-        ))}
-      </Picker>
+        <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
+     <TextInput style={styles.input} value={email} onChangeText={text => setEmail(text)} placeholder="email"/>
+     <TextInput style={styles.input} value={password} onChangeText={text => setPassword(text)} placeholder="password"/>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={showAlert} style={styles.button2}>
+     <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
+     <View style={styles.spacetop}></View>
     </View>
     </ScrollView>
     </SafeAreaView>
@@ -144,12 +161,11 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 10,
+    borderRadius: 50,
     elevation: 3,
     backgroundColor: "#E652FF",
-    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, RefreshControlBase, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -7,7 +7,29 @@ export default function DeleteTeam({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const [teamsData, setTeamsData] = useState(null);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setUserId('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
+  const showAlert = () =>{
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this team?', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK', onPress:handleDelete},
+      ])
+  }
   const handleDelete = async () => {
+    if(!userId){
+      Alert.alert('Selection Needed','Team must be selected')
+      return
+    }
     const apiUrl = `https://centrale.onrender.com/team/delete/${userId}`;
 
     fetch(apiUrl, {
@@ -17,11 +39,12 @@ export default function DeleteTeam({navigation}) {
       }
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Deleted Team'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
+      onRefresh()
   };
   
   useEffect(()=>{
@@ -39,6 +62,11 @@ export default function DeleteTeam({navigation}) {
      },[]);
 console.log(userId)
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Select the Team to delete</Text>
         <View style={styles.spacetop}></View>
@@ -53,12 +81,13 @@ console.log(userId)
         ))}
       </Picker>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={handleDelete} style={styles.button2}>
+     <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Deleted Team 🎊</Text>:<Text></Text>}
+
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -120,11 +149,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',

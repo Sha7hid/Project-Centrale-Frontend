@@ -69,7 +69,7 @@ console.log(studentData)
         <Text style={styles.text}>Delete Student</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
+      <Pressable onPress={() => navigation.navigate('teacherupdateuser')} style={styles.button2}>
         <Text style={styles.text}>Update A Student</Text>
       </Pressable>
       <View style={styles.spacetop}></View>

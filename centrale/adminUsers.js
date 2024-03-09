@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminUsers({navigation}) {
@@ -7,7 +7,7 @@ export default function AdminUsers({navigation}) {
   const [studentsData, setStudentsData] = useState(null);
   const [deleteResult, setDeleteResult] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     const apiUrl = `https://centrale.onrender.com/users`;
@@ -31,7 +31,9 @@ export default function AdminUsers({navigation}) {
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setStudentsData(data))
+.then(data => setStudentsData(data)).then(  setTimeout(() => {
+  setAnimating(false)
+}, 2000))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
@@ -73,7 +75,7 @@ export default function AdminUsers({navigation}) {
         <Text style={styles.text}>Update A User</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-
+      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
 {studentsData?.map((data) =>(
         <>
         <View key={data.id} style={styles.card}>
@@ -105,12 +107,13 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingTop: 80,
-    paddingBottom: 80,
+    paddingLeft: 40,
+    paddingRight: 40,
+    paddingTop: 50,
+    paddingBottom: 50,
     borderRadius: 20,
     textAlign: "center",
+    width:'90%'
   },
   card2:{
 backgroundColor: "#fff",

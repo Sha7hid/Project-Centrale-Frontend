@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import { Picker } from "@react-native-picker/picker";
 export default function AddNewUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [name, setName] = useState('');
@@ -11,6 +12,18 @@ export default function AddNewUser({navigation}) {
   const [password, setPassword] = useState('');
   const [success,setSuccess] = useState(false);
   const [error,setError] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+      setName('')
+      setType('')
+      setEmail('')
+      setPassword('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const validateEmail = (inputEmail) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(inputEmail);
@@ -21,6 +34,19 @@ export default function AddNewUser({navigation}) {
     setIsValidEmail(validateEmail(text));
   };
   const handleSubmit = () => {
+    if(!isValidEmail){
+      Alert.alert('Validation Error','Invalid email address')
+      return;
+  }
+  if (!password || password.length < 5 || password.length > 8) {
+      Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
+      return;
+    }
+
+    if(!type){
+      Alert.alert('Selection needed','Type should be selected');
+      return;
+    }
     // Check if the email already exists
     const checkUrl = `https://centrale.onrender.com/user/email/${email}`;
   
@@ -31,7 +57,7 @@ export default function AddNewUser({navigation}) {
         if ( existingUser.email == email) {
           // User with the same email already exists, handle accordingly
           console.log('User with this email already exists:', existingUser);
-          setError(true)
+          Alert.alert('User Exists','User with this email already exists')
           // You might want to show an error message or take other actions
         } else {
           // User does not exist, proceed with creating a new user
@@ -54,7 +80,7 @@ export default function AddNewUser({navigation}) {
             .then(response => response.json())
             .then(newStudentData => {
               setStudentData(newStudentData);
-              setSuccess(true);
+              Alert.alert('🎊','Successfully Added User')
             })
             .catch(error => {
               console.error('Error:', error);
@@ -64,6 +90,7 @@ export default function AddNewUser({navigation}) {
       .catch(error => {
         console.error('Error checking user existence:', error);
       });
+      onRefresh()
   };
   
   
@@ -82,22 +109,36 @@ export default function AddNewUser({navigation}) {
   }, []);
 
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the User</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input}  onChangeText={handleEmailChange} placeholder="email"/>
-     {!isValidEmail && <Text style={styles.error}>Invalid email address</Text>}
-     <TextInput style={styles.input} onChangeText={text => setPassword(text)} placeholder="password"/>
-     <TextInput style={styles.input} onChangeText={text => setType(text)} placeholder="type"/>
+     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
+     <TextInput style={styles.input} value={email}  onChangeText={handleEmailChange} placeholder="email"/>
+     <TextInput style={styles.input} value={password} onChangeText={text => setPassword(text)} placeholder="password"/>
+     <Picker
+        style={styles.input2}
+        selectedValue={type}
+        onValueChange={(itemValue, itemIndex) => setType(itemValue)}
+      >
+        <Picker.Item label="Select a type" value={null} />
+        <Picker.Item key='student' label='student' value='student' />
+        <Picker.Item key='teacher' label='teacher' value='teacher' />
+        <Picker.Item key='admin' label='admin' value='admin' />
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added User 🎊</Text>:<Text></Text>}
-     {error?<Text style={styles.text}>User Already Exists ⚠️</Text>:<Text></Text>}
+
+
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -159,17 +200,27 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10,
   },
   input: {
     backgroundColor:'#fff',
     textAlign:'center',
     height: 50,
     width:270,
+    margin: 12,
+    borderWidth: 1,
+    borderRadius:50,
+  },
+  input2:{
+    backgroundColor:'#fff',
+    textAlign:'center',
+    height: 50,
+    width:250,
     margin: 12,
     borderWidth: 1,
     borderRadius:50,

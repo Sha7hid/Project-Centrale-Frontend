@@ -28,7 +28,7 @@ export default function TeacherDeleteUser({navigation}) {
       }
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Deleted Student'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
@@ -104,7 +104,6 @@ return (
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Deleted User 🎊</Text>:<Text></Text>}
     </View>
   );
 }

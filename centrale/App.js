@@ -49,6 +49,7 @@ import TeacherMarks from './TeacherMarks';
 import TeacherUsers from './TeacherUsers';
 import TeacherAddNewUser from './TeacherAddNewUser';
 import TeacherDeleteUser from './TeacherDeleteUser';
+import TeacherUpdateUser from './TeacherUpdateUser';
 
 
 const Stack = createNativeStackNavigator();
@@ -401,6 +402,14 @@ function App() {
             height: 120,
           }
         }} component={TeacherDeleteUser} />
+               <Stack.Screen name="teacherupdateuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherUpdateUser} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

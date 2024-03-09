@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -8,8 +8,29 @@ export default function AddNewProject({navigation}) {
   const [teamsData, setTeamsData] = useState(null);
   const [teamID, setTeamID] = useState('');
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+      setTeamID('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
+  const showAlert = () =>{
+    Alert.alert('Confirm Project', 'Are you sure you want to add project to this team?', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK', onPress:handleSubmit},
+      ])
+  }
   const handleSubmit = () => {
-   
+   if(!teamID){
+    Alert.alert('Selection Needed','Please select a team')
+    return
+   }
     const apiUrl = 'https://centrale.onrender.com/projects';
   
     const requestData = {
@@ -25,12 +46,13 @@ export default function AddNewProject({navigation}) {
     })
       .then(response => response.json())
       .then(ProjectData => setProjectData(ProjectData))
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Added TeamID to Project'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
       console.log(ProjectData)
+      onRefresh()
   };
   
   useEffect(()=>{
@@ -48,6 +70,11 @@ export default function AddNewProject({navigation}) {
      },[]);
 console.log(teamID)
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Select Team of the Project</Text>
         <View style={styles.spacetop}></View>
@@ -62,12 +89,13 @@ console.log(teamID)
         ))}
       </Picker>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={handleSubmit} style={styles.button2}>
+     <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added TeamID to Project 🎊</Text>:<Text></Text>}
+  
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -129,11 +157,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10,
   },
   input: {
     backgroundColor:'#fff',

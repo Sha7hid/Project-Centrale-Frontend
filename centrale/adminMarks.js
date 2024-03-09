@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminMarks({navigation}) {
@@ -8,7 +8,7 @@ export default function AdminMarks({navigation}) {
   const [deleteResult, setDeleteResult] = useState(false);
   const [studentsDetails, setStudentsDetails] = useState([]);
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     const apiUrl = `https://centrale.onrender.com/marks`;
@@ -43,7 +43,9 @@ export default function AdminMarks({navigation}) {
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setStudentsData(data))
+.then(data => setStudentsData(data)).then(  setTimeout(() => {
+ setAnimating(false);
+}, 2000))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
@@ -89,12 +91,13 @@ export default function AdminMarks({navigation}) {
         <Text style={styles.text}>Delete Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable  style={styles.button2}>
+      {/* <Pressable  style={styles.button2}>
         <Text style={styles.text}>Update A Mark</Text>
       </Pressable>
-      <View style={styles.spacetop}></View>
+      <View style={styles.spacetop}></View> */}
       <Text style={styles.text}>Look through to select the mark id</Text>
       <View style={styles.spacetop}></View>
+      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
 {studentsData?.map((data,index) =>(
         <>
         <View key={data.id} style={styles.card}>
@@ -138,6 +141,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
+    width:'90%'
   },
   card2:{
 backgroundColor: "#fff",

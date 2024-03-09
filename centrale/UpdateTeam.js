@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function UpdateTeam({navigation}) {
@@ -12,8 +12,22 @@ export default function UpdateTeam({navigation}) {
   const [studentId3, setStudentId3] = useState('');
   const [teacherId, setTeacherId] = useState('');
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setTeamId('')
+    setName('')
+      setStudentId1('')
+      setStudentId2('')
+      setStudentId3('')
+      setTeacherId('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const handleSubmit = () => {
-   
+  
     const apiUrl = `https://centrale.onrender.com/team/update/id/${teamId}`;
   
     const requestData = {
@@ -32,12 +46,12 @@ export default function UpdateTeam({navigation}) {
       body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Updated Team'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-     
+     onRefresh()
   };
   
   useEffect(() => {
@@ -62,12 +76,17 @@ export default function UpdateTeam({navigation}) {
   }, [teamId]);
 
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the Team</Text>
         <View style={styles.spacetop}></View>
         <View style={styles.row}>
         <Text style={styles.text2}>Id     </Text>
-        <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="id"/>
+        <TextInput style={styles.input} value={teamId} onChangeText={text => setTeamId(text)} placeholder="id"/>
         </View>
         <View style={styles.row}>
         <Text style={styles.text2}>Name</Text>
@@ -93,9 +112,10 @@ export default function UpdateTeam({navigation}) {
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Updated Team 🎊</Text>:<Text></Text>}
+   
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -162,11 +182,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',

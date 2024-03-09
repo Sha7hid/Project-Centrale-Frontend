@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -8,8 +8,29 @@ export default function AddNewMark({navigation}) {
   const[studentData, setStudentData] = useState(null);
   const [studentid, setStudentid] = useState('');
   const [success,setSuccess] = useState(false);
+  const showAlert = () =>{
+    Alert.alert('Confirm Student', 'Are you sure you want to add mark to this student?', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK', onPress:handleSubmit},
+      ])
+  }
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+      setStudentid('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const handleSubmit = () => {
-   
+   if(!studentid){
+    Alert.alert('Selection Needed','Please select a student');
+    return
+   }
     const apiUrl = 'https://centrale.onrender.com/marks';
   
     const requestData = {
@@ -25,12 +46,13 @@ export default function AddNewMark({navigation}) {
     })
       .then(response => response.json())
       .then(markData => setMarkData(markData))
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Added Mark For Student'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
       console.log(studentData)
+      onRefresh()
   };
   useEffect(()=>{
     // Replace the URL with your actual API endpoint
@@ -67,7 +89,10 @@ export default function AddNewMark({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
         <View style={styles.container}>
         <Text style={styles.textstyles}>Select The Student To Add Mark</Text>
         <View style={styles.spacetop}></View>
@@ -82,11 +107,9 @@ export default function AddNewMark({navigation}) {
         ))}
       </Picker>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={handleSubmit} style={styles.button2}>
+     <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Mark For Student 🎊</Text>:<Text></Text>}
      <View style={styles.spacetop}></View>
       </View>
       </ScrollView>

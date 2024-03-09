@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
@@ -11,8 +11,27 @@ export default function AddNewTeam({navigation}) {
   const [studentId2, setStudentId2] = useState('');
   const [studentId3, setStudentId3] = useState('');
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+      setName('')
+      setStudentId1('')
+      setStudentId2('')
+      setStudentId3('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const handleSubmit = () => {
-   
+   if(!studentId1 || !studentId2 || !studentId3){
+    Alert.alert('Selection needed','All student fields must be selected')
+    return
+   }
+   if(!name){
+    Alert.alert('Field Needed','Please fill in the name')
+    return
+   }
     const apiUrl = 'https://centrale.onrender.com/teams';
   
     const requestData = {
@@ -31,12 +50,13 @@ export default function AddNewTeam({navigation}) {
     })
       .then(response => response.json())
       .then(teamData => setTeamData(teamData))
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Added Team'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
       console.log(TeamData)
+      onRefresh()
   };
   
   useEffect(()=>{
@@ -71,6 +91,11 @@ export default function AddNewTeam({navigation}) {
     console.log(studentId2)
     console.log(studentId3)
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the Team</Text>
         <View style={styles.spacetop}></View>
@@ -109,9 +134,9 @@ export default function AddNewTeam({navigation}) {
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Team 🎊</Text>:<Text></Text>}
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -173,9 +198,10 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    marginBottom:10,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
   },
