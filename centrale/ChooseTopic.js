@@ -18,19 +18,37 @@ export default function ChooseTopic({ navigation }) {
   const [studentData,setStudentData] = useState(null)
   const [teamData,setTeamData] = useState(null)
   const [projectData,setProjectData] = useState(null)
+  const [projectsData,setProjectsData] = useState(null)
   const [name,setName] = useState(null)
 
   const [refreshing, setRefreshing] = React.useState(false);
   const [animating,setAnimating] = useState(false);
+  const checkProjectNameExists = (newName) => {
+    // Check if projectData exists and is an array
+    if (!Array.isArray(projectsData)) {
+      return false;
+    }
+  
+    // Iterate over each project object in projectData
+    for (const project of projectsData) {
+      // Check if the project name matches the new name
+      if (project.name === newName) {
+        return true; // Name already exists
+      }
+    }
+  
+    return false; // Name does not exist
+  };
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
   
     try {
       const data = await fetchProjectData(teamData?.id);
-      
+      setProjectsData(null)
       // Assuming fetchProjectData resolves with the actual data
       setProjectData(data);
       setName('');
+      fetchProjectsData()
     } catch (error) {
       console.error('Error fetching project data:', error);
     } finally {
@@ -40,6 +58,14 @@ export default function ChooseTopic({ navigation }) {
     }
   }, [teamData?.id]);
   const handleSubmit = () => {
+    if (!name) {
+      Alert.alert('Validation Error', 'Please enter a project name');
+      return;
+    }
+    if (checkProjectNameExists(name)) {
+      Alert.alert('Validation Error', 'Project name already exists');
+      return;
+    }
    setAnimating(true)
     const apiUrl = `https://centrale.onrender.com/project/name/update/teamid/${teamData.id}`;
   
@@ -61,6 +87,7 @@ export default function ChooseTopic({ navigation }) {
         console.error('Error:', error);
       });
      setAnimating(false)
+     onRefresh()
   };
   const fetchProjectData = (teamId) => {
     const apiUrl = `https://centrale.onrender.com/project/teamid/${teamId}`;
@@ -93,6 +120,12 @@ export default function ChooseTopic({ navigation }) {
       fetchData(studentData.id);
     }
   }, [studentData]);
+  useEffect(()=>{
+   
+    // Replace the URL with your actual API endpoint
+   
+   fetchProjectsData()
+     },[]);
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
@@ -106,7 +139,17 @@ export default function ChooseTopic({ navigation }) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
-
+  const fetchProjectsData =() =>{
+    const apiUrl = `https://centrale.onrender.com/projects`;
+   
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setProjectsData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+  }
  
  
 console.log(projectData)
