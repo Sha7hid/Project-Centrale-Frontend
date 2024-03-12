@@ -1,44 +1,52 @@
-import React, { useEffect, useState } from "react";
-import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
 import {Picker} from '@react-native-picker/picker';
+
 export default function AddNewTeam({navigation}) {
-  const [TeamData, setTeamData] = useState(null);
-  const [name, setName] = useState('');
-  const [studentsData,setStudentsData] = useState(null)
-  const [studentId1, setStudentId1] = useState('');
-  const [studentId2, setStudentId2] = useState('');
-  const [studentId3, setStudentId3] = useState('');
-  const [success,setSuccess] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const onRefresh = React.useCallback(async () => {
+  const [teamData, setTeamData] = useState(null);
+  const [teamName, setTeamName] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [studentsData, setStudentsData] = useState(null);
+  const [teacherId, setTeacherId] = useState(null);
+  const [userIds, setUserIds] = useState([null]); // Initialize with one null value
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-      setName('')
-      setStudentId1('')
-      setStudentId2('')
-      setStudentId3('')
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 2000);
-    
+    setTeamName('');
+    setProjectName('');
+    setTeacherId(null);
+    setUserIds([null]); // Reset to one null value
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
   }, []);
+
   const handleSubmit = () => {
-   if(!studentId1 || !studentId2 || !studentId3){
-    Alert.alert('Selection needed','All student fields must be selected')
-    return
-   }
-   if(!name){
-    Alert.alert('Field Needed','Please fill in the name')
-    return
-   }
-    const apiUrl = 'https://centrale.onrender.com/teams';
+    if (!teamName) {
+      Alert.alert('Field Needed', 'Please fill in the team name');
+      return;
+    }
+    if (!projectName) {
+      Alert.alert('Field Needed', 'Please fill in the project name');
+      return;
+    }
+    if (!teacherId) {
+      Alert.alert('Selection needed', 'Please select a teacher');
+      return;
+    }
+    if (userIds.length < 2) {
+      Alert.alert('Selection needed', 'At least two students must be selected');
+      return;
+    }
+    const allUserIds = [teacherId, ...userIds.filter(id => id)]; // Append teacherId to userIds array and filter out null values
+    const apiUrl = 'https://centrale.onrender.com/create-project-team';
   
     const requestData = {
-        name:name,
-      studentId1: studentId1,
-      studentId2: studentId2,
-      studentId3:studentId3
+      userIds: allUserIds,
+      teamName: teamName,
+      projectName: projectName,
     };
   
     fetch(apiUrl, {
@@ -50,95 +58,94 @@ export default function AddNewTeam({navigation}) {
     })
       .then(response => response.json())
       .then(teamData => setTeamData(teamData))
-      .then(Alert.alert('🎊','Successfully Added Team'))
+      .then(() => {
+        Alert.alert('🎊','Successfully Added Team');
+        onRefresh();
+      })
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-      console.log(TeamData)
-      onRefresh()
   };
   
-  useEffect(()=>{
-    // Replace the URL with your actual API endpoint
+  useEffect(() => {
+    // Fetch students data from the API
     const apiUrl = `https://centrale.onrender.com/users`;
      
     fetch(apiUrl)
       .then(response => response.json())
-   .then(data => setStudentsData(data))
+      .then(data => setStudentsData(data))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-   
-     },[]);
-     const filteredData1 = studentsData?.filter((data) => {
-      return (
-        data.type === 'student' && data.id!==studentId2 && data.id!==studentId3
-      );
-    });
-    const filteredData2 = studentsData?.filter((data) => {
-      return (
-        data.type === 'student' && data.id!==studentId1 &&  data.id!==studentId3
-      );
-    });
-    const filteredData3 = studentsData?.filter((data) => {
-      return (
-        data.type === 'student' && data.id!==studentId1 && data.id!==studentId2
-      );
-    });
-    console.log(studentId1)
-    console.log(studentId2)
-    console.log(studentId3)
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView
-     refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
-    <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the Team</Text>
-        <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <Picker
-        style={styles.input}
-        selectedValue={studentId1}
-        onValueChange={(itemValue, itemIndex) => setStudentId1(itemValue)}
-      >
-        <Picker.Item label="Select student 1" value={null} />
-        {filteredData1?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
-        ))}
-      </Picker>
-      <Picker
-        style={styles.input}
-        selectedValue={studentId2}
-        onValueChange={(itemValue, itemIndex) => setStudentId2(itemValue)}
-      >
-        <Picker.Item label="Select student 2" value={null} />
-        {filteredData2?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
-        ))}
-      </Picker>
-      <Picker
-        style={styles.input}
-        selectedValue={studentId3}
-        onValueChange={(itemValue, itemIndex) => setStudentId3(itemValue)}
-      >
-        <Picker.Item label="Select student 3" value={null} />
-        {filteredData3?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
-        ))}
-      </Picker>
-     <View style={styles.spacetop}></View>
-     <Pressable onPress={handleSubmit} style={styles.button2}>
-        <Text style={styles.text}>Submit</Text>
-     </Pressable>
-    </View>
-    </ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        <View style={styles.container}>
+          <Text style={styles.textstyles}>Enter Details of the Team</Text>
+          <View style={styles.spacetop}></View>
+          <TextInput style={styles.input} onChangeText={setTeamName} placeholder="Team Name"/>
+          <TextInput style={styles.input} onChangeText={setProjectName} placeholder="Project Name"/>
+          <Picker
+            style={styles.input}
+            selectedValue={teacherId}
+            onValueChange={setTeacherId}
+          >
+            <Picker.Item label="Select Teacher" value={null} />
+            {studentsData?.filter(user => user.type === 'teacher').map((user) => (
+              <Picker.Item key={user.userId} label={user.name} value={user.userId} />
+            ))}
+          </Picker>
+          <View style={styles.spacetop}></View>
+          <Text style={styles.textstyles}>Select Students</Text>
+          {userIds.map((userId, index) => (
+            <View key={index} style={styles.pickerContainer}>
+              <Picker
+                style={styles.smallInput}
+                selectedValue={userId}
+                onValueChange={(itemValue) => {
+                  const updatedUserIds = [...userIds];
+                  updatedUserIds[index] = itemValue;
+                  setUserIds(updatedUserIds);
+                }}
+              >
+                <Picker.Item label={`Student ${index + 1}`} value={null} />
+                {studentsData?.filter(user => user.type === 'student').map((user) => (
+                  <Picker.Item key={user.userId} label={user.name} value={user.userId} />
+                ))}
+              </Picker>
+              {index > 0 && (
+                <Pressable onPress={() => {
+                  const updatedUserIds = [...userIds];
+                  updatedUserIds.splice(index, 1);
+                  setUserIds(updatedUserIds);
+                }} style={styles.removeButton}>
+                  <Text style={styles.text}>Remove</Text>
+                </Pressable>
+              )}
+            </View>
+          ))}
+          <Pressable onPress={() => setUserIds([...userIds, null])} style={styles.button2}>
+            <Text style={styles.text}>Add More Students</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={handleSubmit} style={styles.button2}>
+            <Text style={styles.text}>Submit</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
+
+
+
 const styles = StyleSheet.create({
   cardlayout: {
     marginTop: 45,
@@ -154,6 +161,30 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
+  },
+
+  pickerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    backgroundColor:"white",
+  },
+  smallInput: {
+    flex: 0.8, // Adjust the flex value as needed
+    height: 30,
+    borderWidth: 1,
+    borderRadius: 50,
+    marginRight: 5,
+  },
+  removeButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: "#FF0000",
   },
   card2:{
 backgroundColor: "#fff",
@@ -213,7 +244,7 @@ backgroundColor: "#fff",
     margin: 12,
     borderWidth: 1,
     borderRadius:50,
-    color:'grey'
+    color:'black',
   },
   div: {
     backgroundColor: "#E652FF",

@@ -1,141 +1,90 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
-export default function AdminTeam({navigation}) {
+
+export default function AdminTeam({ navigation }) {
   const [teamsData, setTeamsData] = useState(null);
-  const [studentNames, setStudentNames] = useState({
-    studentId1: '',
-    studentId2: '',
-    studentId3: '',
-    teacherId:'',
-  });
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [animating,setAnimating] = useState(true);
-  const onRefresh = React.useCallback(async () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const [animating, setAnimating] = useState(true);
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    const apiUrl = `https://centrale.onrender.com/teams`;
-  
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setTeamsData(data))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 2000);
-    
-  }, []);
-  const fetchStudentDetails = async (studentId) => {
-    const apiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
+    const apiUrl = `https://centrale.onrender.com/project-teams`;
   
     try {
       const response = await fetch(apiUrl);
-      const studentDetails = await response.json();
-      return studentDetails.name;
+      const data = await response.json();
+      setTeamsData(data);
     } catch (error) {
-      console.error('Error fetching student details:', error);
-      return null;
+      console.error('Error:', error);
     }
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
   };
 
-
-  useEffect(()=>{
- // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/teams`;
-  
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setTeamsData(data)).then( setTimeout(() => {
-  setAnimating(false);
-}, 2000))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-
-  },[]);
   useEffect(() => {
     const fetchData = async () => {
-      const promises = teamsData.map(async (data) => {
-        const names = {
-          studentId1: '',
-          studentId2: '',
-          studentId3: '',
-          teacherId:'',
-        };
+      const apiUrl = `https://centrale.onrender.com/project-teams`;
 
-        if (data?.studentId1) {
-          names.studentId1 = await fetchStudentDetails(data?.studentId1);
-        }
-        if (data?.studentId2) {
-          names.studentId2 = await fetchStudentDetails(data?.studentId2);
-        }
-        if (data?.studentId3) {
-          names.studentId3 = await fetchStudentDetails(data?.studentId3);
-        }
-        if (data?.teacherId) {
-          names.teacherId = await fetchStudentDetails(data?.teacherId);
-        }
-        return names;
-      });
-
-      const studentNamesArray = await Promise.all(promises);
-      setStudentNames(studentNamesArray);
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        setTeamsData(data);
+        setAnimating(false);
+      } catch (error) {
+        console.error('Error:', error);
+      }
     };
 
     fetchData();
-  }, [teamsData]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView
-    refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
-    <View style={styles.container2}>
-      <Pressable onPress={() => navigation.navigate('addnewteam')} style={styles.button2}>
-        <Text style={styles.text}>Add New Team</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteteam')} style={styles.button2}>
-        <Text style={styles.text}>Delete Team</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateteam')} style={styles.button2}>
-        <Text style={styles.text}>Update A Team</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
-{teamsData?.map((data,index) =>(
-        <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >Name: {data.name}</Text>
-          <Text >ProjectID: {data.projectId}</Text>
-          <Text >StudentID 1: {data.studentId1}</Text>
-          <Text>StudentName: {studentNames[index]?.studentId1}</Text>
-          <Text >StudentID 2: {data.studentId2}</Text>
-          <Text>StudentName: {studentNames[index]?.studentId2}</Text>
-          <Text >StudentID 3: {data.studentId3}</Text>
-          <Text>StudentName: {studentNames[index]?.studentId3}</Text>
-         {data.teacherId? <Text>TeacherID : {data.teacherId}</Text>:<Text></Text>}
-         {data.teacherId? <Text>TeacherName : {studentNames[index]?.teacherId}</Text>:<Text></Text>}
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.container2}>
+          <Pressable onPress={() => navigation.navigate('addnewteam')} style={styles.button2}>
+            <Text style={styles.text}>Add New Team</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={() => navigation.navigate('deleteteam')} style={styles.button2}>
+            <Text style={styles.text}>Delete Team</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={() => navigation.navigate('updateteam')} style={styles.button2}>
+            <Text style={styles.text}>Update A Team</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <ActivityIndicator animating={animating} color={'white'} size={'large'} />
+          {teamsData?.map((team, index) => (
+            <View key={index} style={styles.card}>
+              <Text>Team Name: {team.teamName}</Text>
+              <Text>Project Name: {team.projectName}</Text>
+              {/* <Text>Allocation User IDs: {team.allocationUserIds.join(', ')}</Text> */}
+              {/* <Text>Users:</Text> */}
+              <View>
+                {team.users.map((user, i) => (
+                  <View key={i}>
+                    {user.type === 'teacher'? 
+                    <><Text>Guide Name: {user.name}</Text><Text>Guide Email: {user.email}</Text></>
+                    :
+                    <><Text>Student Name {i+1}: {user.name}</Text></>
+                }
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
-
-     
-      {/* Render your component with studentData */}
-   
-    </View>
-    </ScrollView>
-      </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   cardlayout: {
     marginTop: 45,
@@ -151,7 +100,8 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
-    width:'90%'
+    width:'90%',
+    marginBottom:20
   },
   card2:{
 backgroundColor: "#fff",

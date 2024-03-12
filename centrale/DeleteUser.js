@@ -73,7 +73,7 @@ console.log(userId)
       >
         <Picker.Item label="Select a user" value={null} />
         {studentData?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
+          <Picker.Item key={student.userId} label={student.name} value={student.userId} />
         ))}
       </Picker>
      <View style={styles.spacetop}></View>

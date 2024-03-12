@@ -128,13 +128,19 @@ export default function User({ navigation }) {
                   <View style={styles.spacetop}></View>
                   <Pressable onPress={() => navigation.navigate('adminteam')}>
                     <View style={styles.cardadmin}>
-                      <Text style={styles.cardtext}>Team</Text>
+                      <Text style={styles.cardtext}>Teams</Text>
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
-                  <Pressable onPress={() => navigation.navigate('adminproject')}>
+                  <Pressable >
+                    <View style={styles.cardadmin2}>
+                      <Text style={styles.cardtext}>Departments</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.spacetop}></View>
+                  <Pressable >
                     <View style={styles.cardadmin}>
-                      <Text style={styles.cardtext}>Project</Text>
+                      <Text style={styles.cardtext}>Stages</Text>
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
@@ -180,6 +186,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingLeft: 80,
     paddingRight: 80,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 20,
+    textAlign: "center",
+  },
+  cardadmin2: {
+    backgroundColor: "#fff",
+    paddingLeft: 50,
+    paddingRight:50,
     paddingTop: 15,
     paddingBottom: 15,
     borderRadius: 20,

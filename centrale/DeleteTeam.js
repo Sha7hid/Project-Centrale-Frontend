@@ -30,7 +30,7 @@ export default function DeleteTeam({navigation}) {
       Alert.alert('Selection Needed','Team must be selected')
       return
     }
-    const apiUrl = `https://centrale.onrender.com/team/delete/${userId}`;
+    const apiUrl = `https://centrale.onrender.com/project-team/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -49,7 +49,7 @@ export default function DeleteTeam({navigation}) {
   
   useEffect(()=>{
     // Replace the URL with your actual API endpoint
-    const apiUrl = `https://centrale.onrender.com/teams`;
+    const apiUrl = `https://centrale.onrender.com/project-teams`;
      
     fetch(apiUrl)
       .then(response => response.json())
@@ -77,7 +77,7 @@ console.log(userId)
       >
         <Picker.Item label="Select a team" value={null} />
         {teamsData?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
+          <Picker.Item key={student.projectTeamId} label={student.projectName} value={student.projectTeamId} />
         ))}
       </Picker>
      <View style={styles.spacetop}></View>

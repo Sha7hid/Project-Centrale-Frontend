@@ -3,11 +3,13 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, Toast
 import { useCallback } from "react";
 import { useFonts } from "expo-font";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CryptoJS from 'crypto-js';
 export default function Login({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 const [animating,setAnimating] = useState(false);
+const [hidePass, setHidePass] = useState(true);
   const [isLoaded] = useFonts({
     league: require("./assets/fonts/LeagueSpartan-Bold.ttf"),
     kanit: require("./assets/fonts/Kanit-SemiBold.ttf"),
@@ -34,6 +36,7 @@ const [animating,setAnimating] = useState(false);
       Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
       return;
     }
+    const hashedPassword = CryptoJS.SHA256(password).toString();
     const apiUrl = `https://centrale.onrender.com/user/email/${email}`;
     setAnimating(true)
     ToastAndroid.show('loading..',ToastAndroid.LONG)
@@ -47,11 +50,12 @@ const [animating,setAnimating] = useState(false);
       .then(studentData => {
          AsyncStorage.setItem('studentData', JSON.stringify(studentData));
         // Check if a student with the provided email exists
-        if (studentData && studentData.password === password) {
+        if (studentData && studentData.password === hashedPassword) {
           // Password matches, navigate to the "user" page
           navigation.navigate('user');
         } else {
           // Password doesn't match, you can show an error message or handle it as needed
+
         Alert.alert('Error Logging In','Invalid email or password');
         }
       })
@@ -77,6 +81,7 @@ const [animating,setAnimating] = useState(false);
          onChangeText={text => setEmail(text)}
        />
         <TextInput
+         secureTextEntry={hidePass ? true : false}
          style={styles.password}
          placeholder="Enter your Password"
          onChangeText={text => setPassword(text)}
