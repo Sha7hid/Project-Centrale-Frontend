@@ -55,10 +55,6 @@ export default function AdminTeam({ navigation }) {
             <Text style={styles.text}>Delete Team</Text>
           </Pressable>
           <View style={styles.spacetop}></View>
-          <Pressable onPress={() => navigation.navigate('updateteam')} style={styles.button2}>
-            <Text style={styles.text}>Update A Team</Text>
-          </Pressable>
-          <View style={styles.spacetop}></View>
           <ActivityIndicator animating={animating} color={'white'} size={'large'} />
           {teamsData?.map((team, index) => (
             <View key={index} style={styles.card}>
