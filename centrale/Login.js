@@ -80,12 +80,16 @@ const [hidePass, setHidePass] = useState(true);
          placeholder="Email"
          onChangeText={text => setEmail(text)}
        />
-        <TextInput
+       <View style={styles.cardlayout}>
+       <TextInput
          secureTextEntry={hidePass ? true : false}
          style={styles.password}
          placeholder="Enter your Password"
          onChangeText={text => setPassword(text)}
        />
+       <Text onPress={() => setHidePass(!hidePass)}>👁️</Text>
+       </View>
+    
     
        <View style={styles.space}></View>
          <Pressable style={styles.button}
@@ -113,6 +117,12 @@ const [hidePass, setHidePass] = useState(true);
        justifyContent: "center",
       
      },
+     cardlayout: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginLeft:15
+    },
      text:{
          fontSize:40,
          color:'#fff',
