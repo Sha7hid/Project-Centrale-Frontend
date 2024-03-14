@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Button,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -16,9 +19,29 @@ export default function ChooseTeam({ navigation }) {
   const [studentData,setStudentData] = useState(null)
   const [teamId,setTeamId] = useState(null)
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [animating,setAnimating] = useState(true);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+  
+    try {
+     await fetchTeamsData();
+      setSuccess(false);
+      setTeamId('');
+    } catch (error) {
+      console.error('Error fetching project data:', error);
+    } finally {
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    }
+  }, []);
   const handleSubmit = () => {
-   
-    const apiUrl = `http://192.168.1.5:8080/team/teacherId/update/id/${teamId}`;
+    if (isNaN(teamId)) {
+      Alert.alert('Validation Error','Team ID should be a number');
+      return;
+    }
+    const apiUrl = `https://centrale.onrender.com/team/teacherId/update/id/${teamId}`;
   
     const requestData = {
        teacherId:studentData.id
@@ -32,12 +55,12 @@ export default function ChooseTeam({ navigation }) {
       body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Choosed Your Team'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-     
+     onRefresh()
   };
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
@@ -58,7 +81,7 @@ export default function ChooseTeam({ navigation }) {
   }, []);
   const fetchTeamsData = async () => {
     // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.5:8080/teams`;
+    const apiUrl = `https://centrale.onrender.com/teams`;
 
     try {
       const response = await fetch(apiUrl);
@@ -72,7 +95,7 @@ export default function ChooseTeam({ navigation }) {
           // Fetch student names for studentId1, studentId2, and studentId3
           for (let i = 1; i <= 3; i++) {
             const studentId = team[`studentId${i}`];
-            const studentApiUrl = `http://192.168.1.5:8080/user/id/${studentId}`;
+            const studentApiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
             const studentResponse = await fetch(studentApiUrl);
             const studentData = await studentResponse.json();
             studentsWithNames.push({
@@ -93,21 +116,30 @@ export default function ChooseTeam({ navigation }) {
       console.error("Error:", error);
     }
   };
-
+  useEffect(() => {
+    if (teamsData) {
+    setTimeout(() => {
+        setAnimating(false);
+      }, 8000); 
+    }
+  
+  },[teamsData])
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
         <View style={styles.container}>
             <Text style={styles.textstyles}>Enter your Team Id</Text>
-            <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="Team ID"/>
+            <TextInput style={styles.input} value={teamId} onChangeText={text => setTeamId(text)} placeholder="Team ID"/>
             <Pressable style={styles.button2} onPress={handleSubmit}>
                 <Text style={styles.text}>Submit</Text>
             </Pressable>
-           
-            {success?<Text style={styles.text}>Successfully Choosed Your Team🎊</Text>:<Text></Text>}
             <View style={styles.spacetop}></View>
             <Text style={styles.text}>look through to see if you have already </Text>
             <Text style={styles.text}>choosed a team</Text>
+            <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
           {teamsData.map((team) => (
             <>
              <View style={styles.spacetop}></View>
@@ -142,12 +174,13 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingTop: 80,
-    paddingBottom: 80,
+    paddingLeft: 30,
+    paddingRight: 30,
+    paddingTop: 40,
+    paddingBottom: 40,
     borderRadius: 20,
     textAlign: "center",
+    width:'85%'
   },
   card2: {
     backgroundColor: "#fff",

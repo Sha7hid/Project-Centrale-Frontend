@@ -1,12 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function DeleteProject({navigation}) {
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setUserId('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
+  const showAlert = () =>{
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this project?', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK', onPress:handleDelete},
+      ])
+  }
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.1.5:8080/project/delete/${userId}`;
+    if(!userId){
+      Alert.alert("Field Needed","Please enter a project Id")
+      return
+    }
+    const apiUrl = `https://centrale.onrender.com/project/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -15,11 +37,12 @@ export default function DeleteProject({navigation}) {
       }
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Deleted Project'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
+      onRefresh()
   };
   
 //   useEffect(() => {
@@ -37,17 +60,23 @@ export default function DeleteProject({navigation}) {
 //   }, []);
 
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter the ID of the Project to delete</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={handleDelete} style={styles.button2}>
+     <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Deleted Project 🎊</Text>:<Text></Text>}
+
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -109,11 +138,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',
@@ -136,11 +166,12 @@ backgroundColor: "#fff",
   button: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
-    backgroundColor: "#3734A9",
+    backgroundColor: "#E652FF",
+    marginBottom:10
   },
   text: {
     fontSize: 16,

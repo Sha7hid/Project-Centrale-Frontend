@@ -1,81 +1,94 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function AdminUsers({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [studentsData, setStudentsData] = useState(null);
+  const [departments, setDepartments] = useState({});
   const [deleteResult, setDeleteResult] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [animating,setAnimating] = useState(true);
 
-
-  useEffect(()=>{
- // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.5:8080/users`;
-  
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setStudentsData(data))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-
-  },[]);
-  useEffect(() => {
-
-
-    // Fetch student data from AsyncStorage when the component mounts
-    AsyncStorage.getItem("studentData")
-      .then((data) => {
-        if (data) {
-          const parsedData = JSON.parse(data);
-          setStudentData(parsedData);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching student data from AsyncStorage:", error);
-      });
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    fetchUsers();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
   }, []);
+
+  useEffect(() => {
+    fetchDepartments();
+    fetchUsers();
+  }, []);
+
+  const fetchDepartments = () => {
+    fetch('https://centrale.onrender.com/departments')
+      .then(response => response.json())
+      .then(departmentsData => {
+        const departmentsMap = {};
+        departmentsData.forEach(department => {
+          departmentsMap[department.departmentId] = department.departmentName;
+        });
+        setDepartments(departmentsMap);
+      })
+      .catch(error => {
+        console.error('Error fetching departments:', error);
+      });
+  };
+
+  const fetchUsers = () => {
+    fetch('https://centrale.onrender.com/users')
+      .then(response => response.json())
+      .then(usersData => {
+        setStudentsData(usersData);
+        setAnimating(false);
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+      });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
-    <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewuser')} style={styles.button2}>
-        <Text style={styles.text}>Add New User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteuser')} style={styles.button2}>
-        <Text style={styles.text}>Delete User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
-        <Text style={styles.text}>Update A User</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-
-{studentsData?.map((data) =>(
-        <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >Name: {data.name}</Text>
-          <Text >Email: {data.email}</Text>
-          <Text >Password: {data.password}</Text>
-          <Text >Type:{data.type}</Text>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.container}>
+          <Pressable onPress={() => navigation.navigate('addnewuser')} style={styles.button2}>
+            <Text style={styles.text}>Add New User</Text>
+          </Pressable>
           <View style={styles.spacetop}></View>
+          <Pressable onPress={() => navigation.navigate('deleteuser')} style={styles.button2}>
+            <Text style={styles.text}>Delete User</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={() => navigation.navigate('updateuser')} style={styles.button2}>
+            <Text style={styles.text}>Update A User</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
+          {studentsData?.map((data) =>(
+            <>
+              <View key={data.id} style={styles.card}>
+                <Text>Id: {data.userId}</Text>
+                <Text>Name: {data.name}</Text>
+                <Text>Email: {data.email}</Text>
+                <Text>Password: {data.password}</Text>
+                <Text>Type: {data.type}</Text>
+                <Text>Department: {departments[data.deptId] || "Null"}</Text>
+                <View style={styles.spacetop}></View>
+              </View>
+              <View style={styles.spacetop}></View>
+            </>
+          ))}
         </View>
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
-
-     
-      {/* Render your component with studentData */}
-   
-    </View>
-    </ScrollView>
-      </SafeAreaView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   cardlayout: {
     marginTop: 45,
@@ -85,15 +98,16 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingTop: 80,
-    paddingBottom: 80,
+    paddingLeft: 40,
+    paddingRight: 40,
+    paddingTop: 50,
+    paddingBottom: 50,
     borderRadius: 20,
     textAlign: "center",
+    width:'90%'
   },
   card2:{
-backgroundColor: "#fff",
+    backgroundColor: "#fff",
     paddingLeft: 50,
     paddingRight: 50,
     paddingTop: 80,

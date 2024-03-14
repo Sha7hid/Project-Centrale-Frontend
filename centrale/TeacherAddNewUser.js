@@ -2,87 +2,106 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-import { Picker } from "@react-native-picker/picker";
 import CryptoJS from 'crypto-js';
-export default function UpdateUser({navigation}) {
+export default function TeacherAddNewUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
-  const [userId, setUserId] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [type, setType] = useState('');
+  const [isValidEmail, setIsValidEmail] = useState(true);
   const [password, setPassword] = useState('');
   const [success,setSuccess] = useState(false);
+  const [error,setError] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    setUserId('')
       setName('')
       setEmail('')
-      setType('')
       setPassword('')
       setTimeout(() => {
         setRefreshing(false);
       }, 2000);
     
   }, []);
-  const handleSubmit = () => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const validateEmail = (inputEmail) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(inputEmail);
+  };
 
-    // Check if email is empty or doesn't match the pattern
-    if (!email || !emailPattern.test(email)) {
-      Alert.alert('Validation Error','Invalid email format');
-      return;
+  const handleEmailChange = (text) => {
+    setEmail(text);
+    setIsValidEmail(validateEmail(text));
+  };
+  const handleSubmit = () => {
+    // Check if the email already exists
+    if(!isValidEmail){
+        Alert.alert('Validation Error','Invalid email address')
+        return;
     }
     if (!password || password.length < 5 || password.length > 8) {
-      Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
-      return;
-    }
-    const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-    const apiUrl = `https://centrale.onrender.com/user/update/id/${userId}`;
+        Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
+        return;
+      }
+      const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+    const checkUrl = `https://centrale.onrender.com/user/email/${email}`;
   
-    const requestData = {
-        name:name,
-      email: email,
-      password: hashedPassword,
-      type:type
-    };
-  
-    fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
+    fetch(checkUrl)
       .then(response => response.json())
-      .then(Alert.alert('🎊','Successfully Updated User'))
+      .then(existingUser => {
+        console.log(existingUser)
+        if ( existingUser.email == email) {
+          // User with the same email already exists, handle accordingly
+          Alert.alert('User Exists',`User with this email already exists`)
+          console.log('User with this email already exists:', existingUser);
+          // You might want to show an error message or take other actions
+        } else {
+          // User does not exist, proceed with creating a new user
+          const apiUrl = 'https://centrale.onrender.com/users';
+  
+          const requestData = {
+            name: name,
+            email: email,
+            password: hashedPassword,
+            type: 'student',
+            deptId:studentData.deptId
+          };
+  
+          fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+          })
+            .then(response => response.json()).then(Alert.alert('🎊','Successfully Added User'))
+            .then(newStudentData => {
+              setStudentData(newStudentData);
+           
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        }
+      })
       .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
+        console.error('Error checking user existence:', error);
       });
-      console.log(studentData)
       onRefresh()
   };
   
-  useEffect(() => {
-    if (userId != null) {
-      const apiUrl = `https://centrale.onrender.com/user/id/${userId}`;
   
-      fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-          // Set the state values here
-          setStudentData(data);
-          setName(data?.name);
-          setEmail(data?.email);
-          setPassword(data?.password);
-          setType(data?.type);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-    }
-  }, [userId]);
+  useEffect(() => {
+    // Fetch student data from AsyncStorage when the component mounts
+    AsyncStorage.getItem("studentData")
+      .then((data) => {
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setStudentData(parsedData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching student data from AsyncStorage:", error);
+      });
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -91,27 +110,11 @@ export default function UpdateUser({navigation}) {
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the User</Text>
+        <Text style={styles.textstyles}>Enter Details of the Student</Text>
         <View style={styles.spacetop}></View>
-        <View style={styles.containernone}>
-        <Text style={styles.text}>Only update user if password needs to be changed</Text>
-        </View>
-      
-        <View style={styles.spacetop}></View>
-        <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
-     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} value={email} onChangeText={text => setEmail(text)} placeholder="email"/>
-     <TextInput style={styles.input} value={password} onChangeText={text => setPassword(text)} placeholder="password"/>
-     <Picker
-        style={styles.input}
-        selectedValue={type}
-        onValueChange={(itemValue, itemIndex) => setType(itemValue)}
-      >
-        <Picker.Item label="Select a type" value={null} />
-        <Picker.Item key='student' label='student' value='student' />
-        <Picker.Item key='teacher' label='teacher' value='teacher' />
-        <Picker.Item key='admin' label='admin' value='admin' />
-      </Picker>
+     <TextInput style={styles.input} onChangeText={text => setName(text)} value={name} placeholder="name"/>
+     <TextInput style={styles.input}  onChangeText={handleEmailChange} value={email} placeholder="email"/>
+     <TextInput style={styles.input} onChangeText={text => setPassword(text)} value={password} placeholder="password"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
@@ -165,10 +168,6 @@ backgroundColor: "#fff",
     paddingLeft: 45,
     paddingRight: 45,
   },
-  containernone:{
-    paddingLeft: 45,
-    paddingRight: 45,
-  },
   textstyles: {
     color: "white",
     fontFamily: "league",
@@ -184,12 +183,11 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 10,
+    borderRadius: 50,
     elevation: 3,
     backgroundColor: "#E652FF",
-    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',
@@ -224,6 +222,13 @@ backgroundColor: "#fff",
     fontWeight: "bold",
     letterSpacing: 0.25,
     color: "white",
+  },
+  error:{
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "red",
   },
   space: {
     paddingLeft: 10,

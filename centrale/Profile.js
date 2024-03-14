@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { Button, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function Profile({navigation}) {
@@ -25,12 +25,16 @@ export default function Profile({navigation}) {
       {studentData && (
         <>
           <View style={styles.div}>
-            <Text style={styles.textstyles}>Profile</Text>
-        
+          <Image
+            style={{ height: 55, width: 55}}
+            source={require("./assets/profile.png")}
+          />
 <Text style={styles.textstyles}>{studentData.name}</Text>
 <Text style={styles.textstyles}>{studentData.email}</Text>
+<View style={styles.spacetop}></View>
+<Button  onPress={() => navigation.navigate('user')} title="Home" color={'#000'}/>
             <View style={styles.spacetop}></View>
-            <Button  onPress={() => navigation.navigate('user')} title="Home" color={'#000'}/>
+            <Button  onPress={() => navigation.navigate('Home')} title="Logout" color={'#000'}/>
           </View>
         </>
       )}
@@ -84,9 +88,8 @@ backgroundColor: "#fff",
   textstyles: {
     color: "white",
     fontFamily: "league",
-    fontSize: 40,
+    fontSize: 30,
     fontWeight: "500",
-    paddingRight: 140,
   },
   logo: {
     width: 210,
@@ -95,12 +98,15 @@ backgroundColor: "#fff",
   },
   div: {
     backgroundColor: "#E652FF",
-    paddingBottom: 65,
-    paddingTop: 65,
-    paddingLeft: 45,
-    paddingRight: 45,
+    paddingBottom: 35,
+    paddingTop: 35,
+    paddingLeft: 20,
+    paddingRight: 20,
     borderRadius: 15,
     marginBottom: 20,
+    marginTop: 20,
+    marginLeft: 20,
+    marginRight: 20,
   },
   button: {
     alignItems: "center",

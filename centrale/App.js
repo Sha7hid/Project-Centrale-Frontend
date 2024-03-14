@@ -44,6 +44,23 @@ import AddHundredMark from './AddHundredMark';
 import AddFinalMark from './AddFinalMark';
 import AddReportMark from './AddReportMark';
 import GuideMeeting from './GuideMeeting';
+import Marks from './Marks';
+import TeacherMarks from './TeacherMarks';
+import TeacherUsers from './TeacherUsers';
+import TeacherAddNewUser from './TeacherAddNewUser';
+import TeacherDeleteUser from './TeacherDeleteUser';
+import TeacherUpdateUser from './TeacherUpdateUser';
+import AdminDepartment from './adminDepartment';
+import AddNewDepartment from './AddNewDepartment';
+import DeleteDepartment from './DeleteDepartment';
+import AdminStage from './adminStage';
+import AddNewStage from './AddNewStage';
+import DeleteStage from './DeleteStage';
+import AdminProjectStage from './adminProjectStage';
+import AddNewProjectStage from './AddNewProjectStage';
+import DeleteProjectStage from './DeleteProjectStage';
+import StageDetails from './StageDetails';
+import MarkDetails from './MarkDetails';
 
 
 const Stack = createNativeStackNavigator();
@@ -356,6 +373,142 @@ function App() {
             height: 120,
           }
         }} component={GuideMeeting} />
+         <Stack.Screen name="marks"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={Marks} />
+            <Stack.Screen name="teachermarks"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherMarks} />
+               <Stack.Screen name="teacherusers"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherUsers} />
+            <Stack.Screen name="teacheraddnewuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherAddNewUser} />
+              <Stack.Screen name="teacherdeleteuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherDeleteUser} />
+               <Stack.Screen name="teacherupdateuser"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={TeacherUpdateUser} />
+              <Stack.Screen name="admindepartment"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AdminDepartment} />
+             <Stack.Screen name="addnewdepartment"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddNewDepartment} />
+             <Stack.Screen name="deletedepartment"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={DeleteDepartment} />
+               <Stack.Screen name="adminstage"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AdminStage} />
+        <Stack.Screen name="addnewstage"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddNewStage} />
+        <Stack.Screen name="deletestage"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={DeleteStage} />
+              <Stack.Screen name="adminprojectstage"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AdminProjectStage} />
+             <Stack.Screen name="addnewprojectstage"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={AddNewProjectStage} />
+          <Stack.Screen name="deleteprojectstage"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={DeleteProjectStage} />
+            <Stack.Screen name="StageDetails"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={StageDetails} />
+                    <Stack.Screen name="MarkDetails"
+        options={{
+          headerTitle: () => <Header name='1' />,
+          headerStyle: {
+            backgroundColor: '#3734A9',
+            height: 120,
+          }
+        }} component={MarkDetails} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

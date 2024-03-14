@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function DeleteMark({navigation}) {
+import {Picker} from '@react-native-picker/picker';
+export default function DeleteProjectStage({navigation}) {
+  const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -15,7 +17,7 @@ export default function DeleteMark({navigation}) {
     
   }, []);
   const showAlert = () =>{
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this mark?', [
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this projectStage?', [
         {
           text: 'Cancel',
           style: 'cancel',
@@ -24,11 +26,7 @@ export default function DeleteMark({navigation}) {
       ])
   }
   const handleDelete = async () => {
-    if(!userId){
-      Alert.alert('Field Needed','Please fill in the mark Id')
-      return
-    }
-    const apiUrl = `https://centrale.onrender.com/projectStageMarks/${userId}`;
+    const apiUrl = `https://centrale.onrender.com/projectStages/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -37,7 +35,7 @@ export default function DeleteMark({navigation}) {
       }
     })
       .then(response => response.json())
-      .then(Alert.alert('🎊','Successfully Deleted Mark'))
+      .then(Alert.alert('🎊','Successfully Deleted Project Stage'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
@@ -45,20 +43,20 @@ export default function DeleteMark({navigation}) {
       onRefresh()
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
-
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `https://centrale.onrender.com/projectStages`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setStudentData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+   
+     },[]);
+console.log(userId)
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView
@@ -66,9 +64,18 @@ export default function DeleteMark({navigation}) {
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the Mark to delete</Text>
+        <Text style={styles.textstyles}>Select the Project Stage to delete</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <Picker
+        style={styles.input}
+        selectedValue={userId}
+        onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
+      >
+        <Picker.Item label="Select a project stage" value={null} />
+        {studentData?.map((student) => (
+          <Picker.Item key={student.projectStageId} label={student.projectName + "-" +student.stageName} value={student.projectStageId} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
@@ -137,11 +144,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',

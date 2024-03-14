@@ -1,95 +1,96 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminProject({navigation}) {
-  const [projectData, setprojectData] = useState(null);
-  const [TeamDetails, setTeamDetails] = useState([]);
+export default function TeacherUsers({navigation}) {
+  const [studentData, setStudentData] = useState(null);
+  const [studentsData, setStudentsData] = useState(null);
+  const [deleteResult, setDeleteResult] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
-  const [animating,setAnimating] = useState(true);
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    const apiUrl = `https://centrale.onrender.com/projects`;
+    const apiUrl = `https://centrale.onrender.com/users`;
   
-    fetch(apiUrl)
-      .then(response => response.json())
-   .then(data => setprojectData(data))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
+ fetch(apiUrl)
+   .then(response => response.json())
+.then(data => {
+  const studentUsers = data.filter(user => user.type === 'student' && user.deptId === studentData.deptId);
+  setStudentsData(studentUsers)})
+   .catch(error => {
+     // Handle any errors that occur during the fetch
+     console.error('Error:', error);
+   });
       setTimeout(() => {
         setRefreshing(false);
       }, 2000);
     
-  }, []);
- 
-  const fetchTeamDetails = async (teamId) => {
-    const apiUrl = `https://centrale.onrender.com/team/id/${teamId}`;
-  
-    try {
-      const response = await fetch(apiUrl);
-      const studentDetails = await response.json();
-      return studentDetails;
-    } catch (error) {
-      console.error('Error fetching student details:', error);
-      return null;
-    }
-  };
+  }, [studentData]);
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/projects`;
+ const apiUrl = `https://centrale.onrender.com/users`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setprojectData(data)).then(    setTimeout(() => {
-  setAnimating(false);
-}, 2000))
+.then(data => {
+  const studentUsers = data.filter(user => user.type === 'student' && user.deptId === studentData.deptId);
+  setStudentsData(studentUsers)})
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
    });
 
-  },[]);
+  },[studentData]);
   useEffect(() => {
-    const fetchData = async () => {
-      const detailsPromises = projectData.map(data => fetchTeamDetails(data.teamId));
-      const details = await Promise.all(detailsPromises);
-      setTeamDetails(details);
-    };
 
-    fetchData();
-  }, [projectData]);
 
+    // Fetch student data from AsyncStorage when the component mounts
+    AsyncStorage.getItem("studentData")
+      .then((data) => {
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setStudentData(parsedData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching student data from AsyncStorage:", error);
+      });
+  }, []);
+console.log(studentData)
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView
-    refreshControl={
+     refreshControl={
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewproject')} style={styles.button2}>
-        <Text style={styles.text}>Add New Project</Text>
+      <Pressable onPress={() => navigation.navigate('teacheraddnewuser')} style={styles.button2}>
+        <Text style={styles.text}>Add New Student</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteproject')}  style={styles.button2}>
-        <Text style={styles.text}>Delete Project</Text>
+      <Pressable onPress={() => navigation.navigate('teacherdeleteuser')} style={styles.button2}>
+        <Text style={styles.text}>Delete Student</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      {/* <Pressable  style={styles.button2}>
-        <Text style={styles.text}>Update A Project</Text>
+      <Pressable onPress={() => navigation.navigate('teacherupdateuser')} style={styles.button2}>
+        <Text style={styles.text}>Update A Student</Text>
       </Pressable>
-      <View style={styles.spacetop}></View> */}
-      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
-{projectData?.map((data,index) =>(
+      <View style={styles.spacetop}></View>
+
+{studentsData?.map((data) =>(
         <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >TeamID: {data.teamId}</Text>
-          <Text>Team Name: {TeamDetails[index] ? TeamDetails[index].name : 'N/A'}</Text>
-        </View>
-        <View style={styles.spacetop}></View>
+            <><View key={data.userId} style={styles.card}>
+            <Text>Id: {data.userId}</Text>
+            <Text>Name: {data.name}</Text>
+            <Text>Email: {data.email}</Text>
+            <Text>Password: {data.password}</Text>
+            <Text>Type:{data.type}</Text>
+            <View style={styles.spacetop}></View>
+        </View><View style={styles.spacetop}></View></>   
+        <View></View>
+        
+
         </>
       ))}
 
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     paddingLeft: 50,
-    paddingRight: 50,
+    paddingRight: 30,
     paddingTop: 80,
     paddingBottom: 80,
     borderRadius: 20,

@@ -2,18 +2,17 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminProject({navigation}) {
-  const [projectData, setprojectData] = useState(null);
-  const [TeamDetails, setTeamDetails] = useState([]);
+export default function AdminProjectStage({navigation}) {
+  const [deptData, setdeptData] = useState(null);
   const [refreshing, setRefreshing] = React.useState(false);
   const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    const apiUrl = `https://centrale.onrender.com/projects`;
+    const apiUrl = `https://centrale.onrender.com/projectStages`;
   
     fetch(apiUrl)
       .then(response => response.json())
-   .then(data => setprojectData(data))
+   .then(data => setdeptData(data))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
@@ -24,26 +23,14 @@ export default function AdminProject({navigation}) {
     
   }, []);
  
-  const fetchTeamDetails = async (teamId) => {
-    const apiUrl = `https://centrale.onrender.com/team/id/${teamId}`;
-  
-    try {
-      const response = await fetch(apiUrl);
-      const studentDetails = await response.json();
-      return studentDetails;
-    } catch (error) {
-      console.error('Error fetching student details:', error);
-      return null;
-    }
-  };
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/projects`;
+ const apiUrl = `https://centrale.onrender.com/projectStages`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setprojectData(data)).then(    setTimeout(() => {
+.then(data => setdeptData(data)).then(    setTimeout(() => {
   setAnimating(false);
 }, 2000))
    .catch(error => {
@@ -52,15 +39,7 @@ export default function AdminProject({navigation}) {
    });
 
   },[]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const detailsPromises = projectData.map(data => fetchTeamDetails(data.teamId));
-      const details = await Promise.all(detailsPromises);
-      setTeamDetails(details);
-    };
 
-    fetchData();
-  }, [projectData]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,12 +48,12 @@ export default function AdminProject({navigation}) {
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('addnewproject')} style={styles.button2}>
-        <Text style={styles.text}>Add New Project</Text>
+      <Pressable onPress={() => navigation.navigate('addnewprojectstage')} style={styles.button}>
+        <Text style={styles.text}>Add New Project Stage</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('deleteproject')}  style={styles.button2}>
-        <Text style={styles.text}>Delete Project</Text>
+      <Pressable onPress={() => navigation.navigate('deleteprojectstage')}  style={styles.button2}>
+        <Text style={styles.text}>Delete Project Stage</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
       {/* <Pressable  style={styles.button2}>
@@ -82,12 +61,12 @@ export default function AdminProject({navigation}) {
       </Pressable>
       <View style={styles.spacetop}></View> */}
       <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
-{projectData?.map((data,index) =>(
+{deptData?.map((data,index) =>(
         <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text >TeamID: {data.teamId}</Text>
-          <Text>Team Name: {TeamDetails[index] ? TeamDetails[index].name : 'N/A'}</Text>
+        <View key={data.projectStageId} style={styles.card}>
+          <Text>Id: {data.projectStageId}</Text>
+          <Text>Project Name: {data.projectName}</Text>
+          <Text>Stage Name: {data.stageName}</Text>
         </View>
         <View style={styles.spacetop}></View>
         </>
@@ -171,10 +150,10 @@ backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingHorizontal: 25,
     borderRadius: 50,
     elevation: 3,
-    backgroundColor: "#3734A9",
+    backgroundColor: "#E652FF",
   },
   button2: {
     alignItems: "center",
