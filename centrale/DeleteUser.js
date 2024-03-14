@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function DeleteUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setUserId('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
+  const showAlert = () =>{
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this student?', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {text: 'OK', onPress:handleDelete},
+      ])
+  }
   const handleDelete = async () => {
-    const apiUrl = `http://192.168.1.5:8080/user/delete/${userId}`;
+    const apiUrl = `https://centrale.onrender.com/user/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -16,39 +35,54 @@ export default function DeleteUser({navigation}) {
       }
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Deleted User'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
+      onRefresh()
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
-
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `https://centrale.onrender.com/users`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setStudentData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+   
+     },[]);
+console.log(userId)
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the User to delete</Text>
+        <Text style={styles.textstyles}>Select the User to delete</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <Picker
+        style={styles.input}
+        selectedValue={userId}
+        onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
+      >
+        <Picker.Item label="Select a user" value={null} />
+        {studentData?.map((student) => (
+          <Picker.Item key={student.userId} label={student.name} value={student.userId} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={handleDelete} style={styles.button2}>
+     <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Deleted User 🎊</Text>:<Text></Text>}
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -110,11 +144,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',

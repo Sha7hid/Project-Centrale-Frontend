@@ -1,91 +1,142 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
-export default function AddNewMark({navigation}) {
-  const [markData, setMarkData] = useState(null);
-  const[studentData, setStudentData] = useState(null);
-  const [studentid, setStudentid] = useState('');
-  const [success,setSuccess] = useState(false);
-  const handleSubmit = () => {
-   
-    const apiUrl = 'http://192.168.1.5:8080/marks';
-  
-    const requestData = {
-       studentid:studentid
-    };
-  
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then(response => response.json())
-      .then(markData => setMarkData(markData))
-      .then(setSuccess(true))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
-      console.log(studentData)
+import { Picker } from '@react-native-picker/picker';
+
+export default function AddNewMark({ navigation }) {
+  const [studentData, setStudentData] = useState(null);
+  const [studentId, setStudentId] = useState('');
+  const [projectStages, setProjectStages] = useState([]);
+  const [selectedStage, setSelectedStage] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchStudentData = async () => {
+    try {
+      const apiUrl = 'https://centrale.onrender.com/users';
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      const students = data.filter(user => user.type === 'student');
+      setStudentData(students);
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    }
   };
-  useEffect(()=>{
-    // Replace the URL with your actual API endpoint
-    const apiUrl = `http://192.168.1.5:8080/users`;
-     
-    fetch(apiUrl)
-      .then(response => response.json())
-   .then(data => setStudentData(data))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
+
+  const fetchProjectStages = async (userId) => {
+    try {
+      const apiUrl = `https://centrale.onrender.com/project-stages/${userId}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      setProjectStages(data);
+    } catch (error) {
+      console.error('Error fetching project stages:', error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchStudentData();
+    setStudentId('');
+    setSelectedStage('');
+    setRefreshing(false);
+  };
+
+  const handleSubmit = () => {
+    if (!studentId || !selectedStage) {
+      Alert.alert('Selection Needed', 'Please select a student and a project stage');
+      return;
+    }
+
+    const checkExistingProjectStageMark = async () => {
+      try {
+        const apiUrl = `https://centrale.onrender.com/projectStageMarks/validation/${selectedStage}/${studentId}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        if (data.success === true) {
+          Alert.alert('Validation Error', 'The project stage mark already exists for the selected student and project stage');
+        } else {
+          addProjectStageMark();
+        }
+      } catch (error) {
+        console.error('Error checking project stage mark:', error);
+        Alert.alert('Error', 'An error occurred while checking project stage mark');
+      }
+    };
+if(selectedStage && studentId){
+  checkExistingProjectStageMark();
+}
+
+  };
+
+  const addProjectStageMark = async () => {
+    try {
+      const apiUrl = 'https://centrale.onrender.com/projectStageMarks';
+      const requestBody = {
+        projectStageId: selectedStage,
+        userId: studentId
+      };
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
       });
-   
-     },[]);
-  // useEffect(() => {
-  //   // Fetch student data from AsyncStorage when the component mounts
-  //   AsyncStorage.getItem("studentData")
-  //     .then((data) => {
-  //       if (data) {
-  //         const parsedData = JSON.parse(data);
-  //         setStudentData(parsedData);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching student data from AsyncStorage:", error);
-  //     });
-  // }, []);
+      const data = await response.json();
+      console.log('Response:', data);
+      Alert.alert('🎊', 'Successfully added project stage mark');
+      onRefresh();
+    } catch (error) {
+      console.error('Error adding project stage mark:', error);
+      Alert.alert('Error', 'An error occurred while adding project stage mark');
+    }
+  };
+
+  useEffect(() => {
+    fetchStudentData();
+  }, []);
+
+  const handleStudentChange = (userId) => {
+    setStudentId(userId);
+    fetchProjectStages(userId);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter The Student Id To Add Mark</Text>
-        <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setStudentid(text)} placeholder="student id"/>
-     <View style={styles.spacetop}></View>
-     <Pressable onPress={handleSubmit} style={styles.button2}>
-        <Text style={styles.text}>Submit</Text>
-     </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Mark For Student 🎊</Text>:<Text></Text>}
-     <View style={styles.spacetop}></View>
-<Text style={styles.text}>Look through to select the student id</Text>
-     {studentData?.map((data) =>(
-        <>
-         {data.type == 'student'?
-        <View key={data.id} style={styles.card}>
-  <Text>Id: {data.id}</Text>
-  <Text>Name: {data.name}</Text>
+          <Text style={styles.textstyles}>Enter Details Of Mark</Text>
+          <View style={styles.spacetop}></View>
+          <Text style={styles.text}>Select the Student</Text>
+          <Picker
+            style={styles.input}
+            selectedValue={studentId}
+            onValueChange={(itemValue, itemIndex) => handleStudentChange(itemValue)}
+          >
+            <Picker.Item label="Select a student" value="" />
+            {studentData && studentData.map(student => (
+              <Picker.Item key={student.userId} label={student.name} value={student.userId} />
+            ))}
+          </Picker>
+          <Text style={styles.text}>Select the Project Stage</Text>
+          <Picker
+            style={styles.input}
+            selectedValue={selectedStage}
+            onValueChange={(itemValue, itemIndex) => setSelectedStage(itemValue)}
+          >
+            <Picker.Item label="Select a stage" value="" />
+            {projectStages.map(stage => (
+              <Picker.Item key={stage.projectStageId} label={stage.stageName} value={stage.projectStageId} />
+            ))}
+          </Picker>
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={handleSubmit} style={styles.button2}>
+            <Text style={styles.text}>Submit</Text>
+          </Pressable>
           <View style={styles.spacetop}></View>
         </View>
-         :<View></View>}
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
-      </View>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,20 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminMarks({navigation}) {
-  const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
+export default function AdminMarks({ navigation }) {
+  const [studentsData, setStudentsData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [animating, setAnimating] = useState(true);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const response = await fetch(`https://centrale.onrender.com/projectStageMarks`);
+      const data = await response.json();
+      setStudentsData(data?.projectStageMarks || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `http://192.168.1.5:8080/marks`;
+ const apiUrl = `https://centrale.onrender.com/projectStageMarks`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setStudentsData(data))
+.then(data => setStudentsData(data?.projectStageMarks)).then(  setTimeout(() => {
+ setAnimating(false);
+}, 2000))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
@@ -39,7 +54,10 @@ export default function AdminMarks({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
       <Pressable onPress={() => navigation.navigate('addnewmark')} style={styles.button2}>
         <Text style={styles.text}>Add New Mark</Text>
@@ -49,17 +67,21 @@ export default function AdminMarks({navigation}) {
         <Text style={styles.text}>Delete Mark</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable  style={styles.button2}>
+      {/* <Pressable  style={styles.button2}>
         <Text style={styles.text}>Update A Mark</Text>
       </Pressable>
-      <View style={styles.spacetop}></View>
+      <View style={styles.spacetop}></View> */}
       <Text style={styles.text}>Look through to select the mark id</Text>
       <View style={styles.spacetop}></View>
-{studentsData?.map((data) =>(
+      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
+{studentsData && studentsData?.map((data,index) =>(
         <>
-        <View key={data.id} style={styles.card}>
-  <Text>Id: {data.id}</Text>
-  <Text>StudentID: {data.studentid}</Text>
+        <View key={data.projectStageMarksId} style={styles.card}>
+  <Text>Id: {data.projectStageMarksId}</Text>
+<Text>Project Stage Id: {data.projectStageId}</Text>
+<Text>Marks: {data.marks}</Text>
+<Text>Student Name: {data.studentName} </Text>
+ <Text>Stage Name: {data.stageName}</Text>
           <View style={styles.spacetop}></View>
         </View>
         <View style={styles.spacetop}></View>
@@ -89,6 +111,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
+    width:'90%'
   },
   card2:{
 backgroundColor: "#fff",

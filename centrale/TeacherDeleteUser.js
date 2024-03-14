@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function DeleteMark({navigation}) {
+import {Picker} from '@react-native-picker/picker';
+export default function TeacherDeleteUser({navigation}) {
+    const [studentsData,setStudentsData] = useState(null)
+    const [studentData,setStudentData] = useState(null)
+    const [TeamData,setTeamData] = useState(null)
   const [userId, setUserId] = useState('');
   const [success,setSuccess] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    setUserId('')
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 2000);
-    
-  }, []);
   const showAlert = () =>{
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this mark?', [
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this student?', [
         {
           text: 'Cancel',
           style: 'cancel',
@@ -24,11 +19,7 @@ export default function DeleteMark({navigation}) {
       ])
   }
   const handleDelete = async () => {
-    if(!userId){
-      Alert.alert('Field Needed','Please fill in the mark Id')
-      return
-    }
-    const apiUrl = `https://centrale.onrender.com/projectStageMarks/${userId}`;
+    const apiUrl = `https://centrale.onrender.com/user/delete/${userId}`;
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -37,45 +28,66 @@ export default function DeleteMark({navigation}) {
       }
     })
       .then(response => response.json())
-      .then(Alert.alert('🎊','Successfully Deleted Mark'))
+      .then(Alert.alert('🎊','Successfully Deleted Student'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-      onRefresh()
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+  useEffect(()=>{
+    // Replace the URL with your actual API endpoint
+    const apiUrl = `https://centrale.onrender.com/users`;
+     
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => {
+    const studentUsers = data.filter(user => user.type === 'student' && user.deptId === studentData.deptId);
+    setStudentsData(studentUsers)})
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
+   
+     },[studentData]);
+
+
+
+useEffect(() => {
+// Fetch student data from AsyncStorage when the component mounts
+AsyncStorage.getItem("studentData")
+  .then((data) => {
+    if (data) {
+      const parsedData = JSON.parse(data);
+      setStudentData(parsedData);
+    }
+  })
+  .catch((error) => {
+    console.error("Error fetching student data from AsyncStorage:", error);
+  });
+}, []);
+
 
   return (
-    <SafeAreaView style={styles.container}>
-    <ScrollView
-     refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the Mark to delete</Text>
+        <Text style={styles.textstyles}>Select the Student to delete</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <Picker
+        style={styles.input}
+        selectedValue={userId}
+        onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
+      >
+        <Picker.Item label="Select a student" value={null} />
+        {studentsData?.map((student) => (
+          <Picker.Item key={student.userId} label={student.name} value={student.userId} />
+        ))}
+      </Picker>
      <View style={styles.spacetop}></View>
      <Pressable onPress={showAlert} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
+     <View style={styles.spacetop}></View>
     </View>
-    </ScrollView>
-    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

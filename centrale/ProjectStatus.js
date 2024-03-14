@@ -1,52 +1,85 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Button,
+  Linking,
   Pressable,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
-export default function ProjectStatus({ navigation }) {
-  const [studentData,setStudentData] = useState(null)
-  const [teamData,setTeamData] = useState(null)
-  const [projectData,setProjectData] = useState(null)
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
-  
-  const fetchProjectData = (teamId) => {
-    const apiUrl = `http://192.168.1.5:8080/project/teamid/${teamId}`;
-    fetch(apiUrl)
-      .then(response => response.json())
-      .then(data => setProjectData(data))
-      .catch(error => {
-        console.error('Error:', error);
+export default function ProjectStatus({ navigation }) {
+  const [studentData, setStudentData] = useState(null);
+  const [teamData, setTeamData] = useState(null);
+  const [projectData, setProjectData] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [approvalPercentage, setApprovalPercentage] = useState(0); // Initialize with 0%
+
+  const handleUpdateApproval = async (stageId) => {
+    try {
+      const apiUrl = `https://centrale.onrender.com/project-stage/approval`;
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, stageId }),
       });
-  };
-  
-  useEffect(() => {
-    if (teamData) {
-      fetchProjectData(teamData.id);
+      if (response.ok) {
+        Alert.alert('🎊', 'Successfully Approved');
+        // Refresh data after approval
+        fetchData(userId);
+      } else {
+        console.error('Failed to update Approval:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error updating Approval:', error);
     }
-  }, [teamData]);
+  };
+
   const fetchData = (studentId) => {
-    const apiUrl = `http://192.168.1.5:8080/team/studentid/${studentId}`;
+    setAnimating(true);
+    const apiUrl = `https://centrale.onrender.com/project-stages/${studentId}`;
     fetch(apiUrl)
       .then(response => response.json())
-      .then(data => setTeamData(data))
+      .then(data => {
+        setTeamData(data);
+        calculateApprovalPercentage(data);
+      })
       .catch(error => {
         console.error('Error:', error);
+      })
+      .finally(() => {
+        setAnimating(false);
       });
   };
-  
+
+  const calculateApprovalPercentage = (data) => {
+    if (!data || !data.length) return;
+    const approvedStages = data.filter(stage => stage.approval).length;
+    const percentage = (approvedStages / data.length) * 100;
+    setApprovalPercentage(percentage);
+  };
+
   useEffect(() => {
     if (studentData) {
-      fetchData(studentData.id);
+      fetchData(studentData?.userId);
     }
+    setUserId(studentData?.userId);
   }, [studentData]);
+
   useEffect(() => {
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
@@ -61,51 +94,72 @@ export default function ProjectStatus({ navigation }) {
       });
   }, []);
 
- 
- 
-console.log(projectData)
-const getCompletionPercentage = () => {
-    if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2 && projectData?.final_presentation && projectData?.report) {
-      return <Text style={styles.cardtext}>100%</Text>; 
-    } else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2 && projectData?.final_presentation) {
-      return <Text style={styles.cardtext}>88%</Text>;
-    } else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation && projectData?.codephase2) {
-      return <Text style={styles.cardtext}>76%</Text>;
-    }   else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1 && projectData?.second_presentation ) {
-      return <Text style={styles.cardtext}>60%</Text>;
-    }   else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation && projectData?.codephase1) {
-      return <Text style={styles.cardtext}>48%</Text>;
-    }   else if (projectData?.synopsis && projectData?.design && projectData?.first_presentation ) {
-      return <Text style={styles.cardtext}>36%</Text>;
-    }   else if (projectData?.synopsis && projectData?.design  ) {
-      return <Text style={styles.cardtext}>24%</Text>;
-    }  else if (projectData?.synopsis) {
-      return <Text style={styles.cardtext}>12%</Text>;
-    }
-    else {
-      return <Text style={styles.cardtext}>0%</Text>;
+  const renderStages = () => {
+    if (!teamData) return null;
+
+    return teamData.map((stage, index) => (
+   
+      <View key={index} style={styles.cardlayout}>
+        <Pressable style={styles.button2} onPress={() => handleStagePress(stage)}>
+          <Text style={styles.text}>{stage.stageName}</Text>
+        </Pressable>
+        {studentData.type === 'teacher'? <><View style={styles.space}></View><Pressable onPress={() => handleUpdateApproval(stage.stageId)} style={styles.button2}>
+          <Text style={styles.text}>{stage.approval ? 'Approved✅' : 'Approve'}</Text>
+        </Pressable></>:<View></View>}
+       
+      </View>
+    ));
+  };
+
+  const handleStagePress = (stage) => {
+    if (stage.link) {
+      Linking.openURL(stage.link);
+    } else {
+      Alert.alert('No Link Available', 'This stage does not have a link associated with it.');
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      fetchData(userId);
+    } catch (error) {
+      console.error('Error fetching project data:', error);
+    } finally {
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    }
+  }, [teamData?.id]);
+console.log(teamData)
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.container}>
-            <Text style={styles.textstyles}>Project Status</Text>
-            <View style={styles.spacetop}></View>
-            <View style={styles.card}>
-              {getCompletionPercentage()}
-            </View>
+          <Text style={styles.textstyles}>Project Status</Text>
+          <View style={styles.spacetop}></View>
+          <View style={styles.card2}>
+            <Text style={styles.text2}>{approvalPercentage.toFixed(2)}%</Text>
+          </View>
+          <ActivityIndicator animating={animating} color={'white'} size={'large'} />
+          <View style={styles.spacetop}></View>
+          {renderStages()}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+
 const styles = StyleSheet.create({
   cardlayout: {
-    marginTop: 45,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    marginBottom:20
   },
   card: {
     backgroundColor: "#fff",
@@ -120,8 +174,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingLeft: 50,
     paddingRight: 50,
-    paddingTop: 80,
-    paddingBottom: 80,
+    paddingTop: 50,
+    paddingBottom: 50,
     borderRadius: 20,
     textAlign: "center",
   },
@@ -146,6 +200,13 @@ const styles = StyleSheet.create({
   },
   textstyles: {
     color: "white",
+    fontFamily: "league",
+    fontSize: 40,
+    fontWeight: "500",
+    paddingRight: 140,
+  },
+  textstyles2: {
+    color: "black",
     fontFamily: "league",
     fontSize: 40,
     fontWeight: "500",
@@ -201,12 +262,35 @@ const styles = StyleSheet.create({
     elevation: 3,
     backgroundColor: "#FF0000",
   },
+  buttonwhite: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    elevation: 3,
+    backgroundColor: "#FFF",
+  },
   text: {
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "bold",
     letterSpacing: 0.25,
     color: "white",
+  },
+  text2: {
+    fontSize: 20,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "black",
+  },
+  textblue: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "#3734A9",
   },
   space: {
     paddingLeft: 10,

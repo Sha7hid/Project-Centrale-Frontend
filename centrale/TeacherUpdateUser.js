@@ -2,62 +2,81 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function DeleteMark({navigation}) {
+import CryptoJS from 'crypto-js';
+export default function TeacherUpdateUser({navigation}) {
+  const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [TeamData,setTeamData] = useState(null)
   const [success,setSuccess] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     setUserId('')
+      setName('')
+      setEmail('')
+      setPassword('')
       setTimeout(() => {
         setRefreshing(false);
       }, 2000);
     
   }, []);
-  const showAlert = () =>{
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this mark?', [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {text: 'OK', onPress:handleDelete},
-      ])
-  }
-  const handleDelete = async () => {
-    if(!userId){
-      Alert.alert('Field Needed','Please fill in the mark Id')
-      return
-    }
-    const apiUrl = `https://centrale.onrender.com/projectStageMarks/${userId}`;
+  const handleSubmit = () => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    // Check if email is empty or doesn't match the pattern
+    if (!email || !emailPattern.test(email)) {
+      Alert.alert('Validation Error','Invalid email format');
+      return;
+    }
+
+
+    const apiUrl = `https://centrale.onrender.com/user/update/id/${userId}`;
+  
+    const requestData = {
+        name:name,
+      email: email,
+      password:password,
+      type:'student'
+    };
+  
     fetch(apiUrl, {
-      method: 'DELETE',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(Alert.alert('🎊','Successfully Deleted Mark'))
+      .then(Alert.alert('🎊','Successfully Updated User'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
+      console.log(studentData)
       onRefresh()
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+  useEffect(() => {
+    if (userId != null) {
+      const apiUrl = `https://centrale.onrender.com/user/id/${userId}`;
+  
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Set the state values here
+          setStudentData(data);
+          setName(data?.name);
+          setEmail(data?.email);
+          setPassword(data?.password)
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }, [userId]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -66,13 +85,16 @@ export default function DeleteMark({navigation}) {
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the Mark to delete</Text>
+        <Text style={styles.textstyles}>Enter Details of the Student</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
+        <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
+     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
+     <TextInput style={styles.input} value={email} onChangeText={text => setEmail(text)} placeholder="email"/>
      <View style={styles.spacetop}></View>
-     <Pressable onPress={showAlert} style={styles.button2}>
+     <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
+     <View style={styles.spacetop}></View>
     </View>
     </ScrollView>
     </SafeAreaView>

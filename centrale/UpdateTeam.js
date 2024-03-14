@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 export default function UpdateTeam({navigation}) {
 
   const [teamId, setTeamId] = useState('');
+  const [teamData,setTeamData] = useState(null)
   const [name, setName] = useState('');
   const [studentId1, setStudentId1] = useState('');
   const [studentId2, setStudentId2] = useState('');
   const [studentId3, setStudentId3] = useState('');
   const [teacherId, setTeacherId] = useState('');
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setTeamId('')
+    setName('')
+      setStudentId1('')
+      setStudentId2('')
+      setStudentId3('')
+      setTeacherId('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
   const handleSubmit = () => {
-   
-    const apiUrl = `http://192.168.1.5:8080/team/update/id/${teamId}`;
+  
+    const apiUrl = `https://centrale.onrender.com/team/update/id/${teamId}`;
   
     const requestData = {
         name:name,
@@ -31,45 +46,76 @@ export default function UpdateTeam({navigation}) {
       body: JSON.stringify(requestData),
     })
       .then(response => response.json())
-      .then(setSuccess(true))
+      .then(Alert.alert('🎊','Successfully Updated Team'))
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-     
+     onRefresh()
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+  useEffect(() => {
+    if (teamId != null) {
+      const apiUrl = `https://centrale.onrender.com/team/id/${teamId}`;
+  
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Set the state values here
+          setTeamData(data);
+          setName(data?.name);
+          setStudentId1(data?.studentId1);
+          setStudentId2(data?.studentId2);
+          setStudentId3(data?.studentId3);
+          setTeacherId(data?.teacherId);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }, [teamId]);
 
   return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView
+     refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the Team</Text>
         <View style={styles.spacetop}></View>
-        <TextInput style={styles.input} onChangeText={text => setTeamId(text)} placeholder="id"/>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
-     <TextInput style={styles.input} onChangeText={text => setTeacherId(text)} placeholder="teacherId"/>
+        <View style={styles.row}>
+        <Text style={styles.text2}>Id     </Text>
+        <TextInput style={styles.input} value={teamId} onChangeText={text => setTeamId(text)} placeholder="id"/>
+        </View>
+        <View style={styles.row}>
+        <Text style={styles.text2}>Name</Text>
+     <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>StId1</Text>
+     <TextInput style={styles.input} value={String(studentId1)} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>StId2</Text>
+     <TextInput style={styles.input} value={String(studentId2)} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>StId3</Text>
+     <TextInput style={styles.input} value={String(studentId3)} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
+     </View>
+     <View style={styles.row}>
+        <Text style={styles.text2}>tId    </Text>
+     <TextInput style={styles.input} value={String(teacherId)} onChangeText={text => setTeacherId(text)} placeholder="teacherId"/>
+     </View>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Updated Team 🎊</Text>:<Text></Text>}
+   
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -77,6 +123,11 @@ const styles = StyleSheet.create({
     marginTop: 45,
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
+  },
+  row:{
+flexDirection: "row",
+justifyContent: "center",
     alignItems: "center",
   },
   card: {
@@ -131,11 +182,12 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10
   },
   input: {
     backgroundColor:'#fff',
@@ -166,6 +218,13 @@ backgroundColor: "#fff",
   },
   text: {
     fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "white",
+  },
+  text2: {
+    fontSize: 14,
     lineHeight: 21,
     fontWeight: "bold",
     letterSpacing: 0.25,

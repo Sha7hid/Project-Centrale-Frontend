@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView} from "react-native";
+import { Button, Pressable, StyleSheet, Text, TextInput, View ,Linking, SafeAreaView, ScrollView, RefreshControl, Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
 export default function GuideMeeting({navigation}) {
   const [studentsData,setStudentsData] = useState(null)
   const [studentData,setStudentData] = useState(null)
@@ -9,9 +10,27 @@ export default function GuideMeeting({navigation}) {
   const [studentid,setStudentid] = useState(null)
   const [mark,setMark] = useState(null)
   const [success,setSuccess] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+      setSuccess(false);
+      setMark('')
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    
+  }, []);
     const handleSubmit = () => {
-     
-      const apiUrl = `http://192.168.1.5:8080/mark/attendance/update/studentid/${studentid}`;
+      if (isNaN(mark)) {
+        Alert.alert('Validation Error','mark should be a number');
+        return;
+      }
+      if(studentid===null) {
+        Alert.alert('Selection Needed','A student must be selected');
+        return;
+      }
+      const apiUrl = `https://centrale.onrender.com/mark/attendance/update/studentid/${studentid}`;
     const parsedmark = parseInt(mark)
       const requestData = {
          mark:parsedmark
@@ -25,7 +44,7 @@ export default function GuideMeeting({navigation}) {
         body: JSON.stringify(requestData),
       })
         .then(response => response.json())
-        .then(setSuccess(true))
+        .then(Alert.alert('🎊','Successfully Added Attendance Mark'))
         .catch(error => {
           // Handle any errors that occur during the fetch
           console.error('Error:', error);
@@ -34,7 +53,7 @@ export default function GuideMeeting({navigation}) {
     };
     useEffect(()=>{
       // Replace the URL with your actual API endpoint
-      const apiUrl = `http://192.168.1.5:8080/users`;
+      const apiUrl = `https://centrale.onrender.com/users`;
        
       fetch(apiUrl)
         .then(response => response.json())
@@ -48,7 +67,7 @@ export default function GuideMeeting({navigation}) {
   
   
        const fetchData = (studentId) => {
-        const apiUrl = `http://192.168.1.5:8080/team/studentid/${studentId}`;
+        const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
         fetch(apiUrl)
           .then(response => response.json())
           .then(data => setTeamData(data))
@@ -75,39 +94,40 @@ useEffect(() => {
       console.error("Error fetching student data from AsyncStorage:", error);
     });
 }, []);
-console.log(TeamData)
-
+const filteredData = studentsData?.filter((data) => {
+  return (
+    data.type === 'student' &&
+    (data.id === TeamData?.studentId1 || data.id === TeamData?.studentId2 || data.id === TeamData?.studentId3)
+  );
+});
+console.log(studentid)
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
+    <ScrollView
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Add Guide Meeting Attendance</Text>
         <View style={styles.spacetop}></View>
         <Text style={styles.text}>You can also update existing mark</Text>
         <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setStudentid(text)} placeholder="student id"/>
-     <TextInput style={styles.input} onChangeText={text => setMark(text)} placeholder="mark"/>
+        <Picker
+        style={styles.input}
+        selectedValue={studentid}
+        onValueChange={(itemValue, itemIndex) => setStudentid(itemValue)}
+      >
+        <Picker.Item label="Select a student" value={null} />
+        {filteredData?.map((student) => (
+          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        ))}
+      </Picker>
+     <TextInput style={styles.input} value={mark} onChangeText={text => setMark(text)} placeholder="mark"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>
      </Pressable>
      <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Attendance Mark 🎊</Text>:<Text></Text>}
-     <View style={styles.spacetop}></View>
-        <Text style={styles.text}>Look through to select student id</Text>
-        <View style={styles.spacetop}></View>
-        {studentsData?.map((data) =>(
-        <>
-         {data.type == 'student'  && data.id == TeamData?.studentId1 || data.id == TeamData?.studentId2 || data.id == TeamData?.studentId3?
-        <View key={data.id} style={styles.card}>
-  <Text>Id: {data.id}</Text>
-  <Text>Name: {data.name}</Text>
-          <View style={styles.spacetop}></View>
-        </View>
-         :<View></View>}
-        <View style={styles.spacetop}></View>
-        </>
-      ))}
             {/* <View style={styles.card}>
               {projectData?.synopsis?
               <Pressable>

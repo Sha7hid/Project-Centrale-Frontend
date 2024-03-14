@@ -1,23 +1,65 @@
-import React, { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
+import {Picker} from '@react-native-picker/picker';
+
 export default function AddNewTeam({navigation}) {
-  const [TeamData, setTeamData] = useState(null);
-  const [name, setName] = useState('');
-  const [studentId1, setStudentId1] = useState('');
-  const [studentId2, setStudentId2] = useState('');
-  const [studentId3, setStudentId3] = useState('');
-  const [success,setSuccess] = useState(false);
+  const [teamData, setTeamData] = useState(null);
+  const [teamName, setTeamName] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [studentsData, setStudentsData] = useState(null);
+  const [teacherId, setTeacherId] = useState(null);
+  const [userIds, setUserIds] = useState([null]); // Initialize with one null value
+  const [departmentsData, setDepartmentsData] = useState(null); // Store department data
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    setTeamName('');
+    setProjectName('');
+    setTeacherId(null);
+    setUserIds([null]); // Reset to one null value
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   const handleSubmit = () => {
-   
-    const apiUrl = 'http://192.168.1.5:8080/teams';
+    if (!teamName) {
+      Alert.alert('Field Needed', 'Please fill in the team name');
+      return;
+    }
+    if (!projectName) {
+      Alert.alert('Field Needed', 'Please fill in the project name');
+      return;
+    }
+    if (!teacherId) {
+      Alert.alert('Selection needed', 'Please select a teacher');
+      return;
+    }
+    if (userIds.length < 2) {
+      Alert.alert('Selection needed', 'At least two students must be selected');
+      return;
+    }
+    const existingTeamNames = teamData?.map(team => team.teamName) || [];
+  const existingProjectNames = teamData?.map(team => team.projectName) || [];
+
+  if (existingTeamNames.includes(teamName)) {
+    Alert.alert('Duplicate Team Name', 'Team name already exists. Please choose a different name.');
+    return;
+  }
+
+  if (existingProjectNames.includes(projectName)) {
+    Alert.alert('Duplicate Project Name', 'Project name already exists. Please choose a different name.');
+    return;
+  }
+    const allUserIds = [teacherId, ...userIds.filter(id => id)]; // Append teacherId to userIds array and filter out null values
+    const apiUrl = 'https://centrale.onrender.com/create-project-team';
   
     const requestData = {
-        name:name,
-      studentId1: studentId1,
-      studentId2: studentId2,
-      studentId3:studentId3
+      userIds: allUserIds,
+      teamName: teamName,
+      projectName: projectName,
     };
   
     fetch(apiUrl, {
@@ -29,45 +71,117 @@ export default function AddNewTeam({navigation}) {
     })
       .then(response => response.json())
       .then(teamData => setTeamData(teamData))
-      .then(setSuccess(true))
+      .then(() => {
+        Alert.alert('🎊','Successfully Added Team');
+        onRefresh();
+      })
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
-      console.log(TeamData)
   };
   
-//   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
-//     AsyncStorage.getItem("studentData")
-//       .then((data) => {
-//         if (data) {
-//           const parsedData = JSON.parse(data);
-//           setStudentData(parsedData);
-//         }
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching student data from AsyncStorage:", error);
-//       });
-//   }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch students data from the API
+      const studentsUrl = `https://centrale.onrender.com/users`;
+      // Fetch teams data from the API
+      const teamsUrl = `https://centrale.onrender.com/project-teams`;
+      // Fetch departments data from the API
+      const departmentsUrl = `https://centrale.onrender.com/departments`; // Adjust the URL according to your API
 
+      try {
+        const [studentsResponse, teamsResponse, departmentsResponse] = await Promise.all([
+          fetch(studentsUrl),
+          fetch(teamsUrl),
+          fetch(departmentsUrl)
+        ]);
+  
+        const [studentsData, teamsData, departmentsData] = await Promise.all([
+          studentsResponse.json(),
+          teamsResponse.json(),
+          departmentsResponse.json()
+        ]);
+  
+        setStudentsData(studentsData);
+        setTeamData(teamsData);
+        setDepartmentsData(departmentsData); // Store department data
+      } catch (error) {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+  
+  console.log(teamData)
   return (
-    <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter Details of the Team</Text>
-        <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} onChangeText={text => setName(text)} placeholder="name"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId1(text)} placeholder="studentId 1"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId2(text)} placeholder="studentId 2"/>
-     <TextInput style={styles.input} onChangeText={text => setStudentId3(text)} placeholder="studentId 3"/>
-     <View style={styles.spacetop}></View>
-     <Pressable onPress={handleSubmit} style={styles.button2}>
-        <Text style={styles.text}>Submit</Text>
-     </Pressable>
-     <View style={styles.spacetop}></View>
-     {success?<Text style={styles.text}>Successfully Added Team 🎊</Text>:<Text></Text>}
-    </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        <View style={styles.container}>
+          <Text style={styles.textstyles}>Enter Details of the Team</Text>
+          <View style={styles.spacetop}></View>
+          <TextInput style={styles.input} value={teamName} onChangeText={setTeamName} placeholder="Team Name"/>
+          <TextInput style={styles.input} value={projectName} onChangeText={setProjectName} placeholder="Project Name"/>
+          <Picker
+            style={styles.input}
+            selectedValue={teacherId}
+            onValueChange={setTeacherId}
+          >
+            <Picker.Item label="Select Teacher" value={null} />
+            {studentsData?.filter(user => user.type === 'teacher').map((user) => (
+                <Picker.Item key={user.userId} label={`${user.name} - ${departmentsData && departmentsData.find(dept => dept.departmentId === user.deptId)?.departmentName}`} value={user.userId} />
+            ))}
+          </Picker>
+          <View style={styles.spacetop}></View>
+          <Text style={styles.textstyles}>Select Students</Text>
+          {userIds.map((userId, index) => (
+            <View key={index} style={styles.pickerContainer}>
+              <Picker
+                style={styles.smallInput}
+                selectedValue={userId}
+                onValueChange={(itemValue) => {
+                  const updatedUserIds = [...userIds];
+                  updatedUserIds[index] = itemValue;
+                  setUserIds(updatedUserIds);
+                }}
+              >
+                <Picker.Item label={`Student ${index + 1}`} value={null} />
+                {studentsData?.filter(user => user.type === 'student').map((user) => (
+                <Picker.Item key={user.userId} label={`${user.name} - ${departmentsData && departmentsData.find(dept => dept.departmentId === user.deptId)?.departmentName}`} value={user.userId} />
+
+                ))}
+              </Picker>
+              {index > 0 && (
+                <Pressable onPress={() => {
+                  const updatedUserIds = [...userIds];
+                  updatedUserIds.splice(index, 1);
+                  setUserIds(updatedUserIds);
+                }} style={styles.removeButton}>
+                  <Text style={styles.text}>Remove</Text>
+                </Pressable>
+              )}
+            </View>
+          ))}
+          <Pressable onPress={() => setUserIds([...userIds, null])} style={styles.button2}>
+            <Text style={styles.text}>Add More Students</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={handleSubmit} style={styles.button2}>
+            <Text style={styles.text}>Submit</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
+
+
 const styles = StyleSheet.create({
   cardlayout: {
     marginTop: 45,
@@ -83,6 +197,30 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
+  },
+
+  pickerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    backgroundColor:"white",
+  },
+  smallInput: {
+    flex: 0.8, // Adjust the flex value as needed
+    height: 30,
+    borderWidth: 1,
+    borderRadius: 50,
+    marginRight: 5,
+  },
+  removeButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: "#FF0000",
   },
   card2:{
 backgroundColor: "#fff",
@@ -127,9 +265,10 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    marginBottom:10,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
   },
@@ -141,6 +280,7 @@ backgroundColor: "#fff",
     margin: 12,
     borderWidth: 1,
     borderRadius:50,
+    color:'black',
   },
   div: {
     backgroundColor: "#E652FF",
