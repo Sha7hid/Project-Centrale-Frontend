@@ -1,96 +1,74 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function TeacherUsers({navigation}) {
-  const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
+export default function AdminStage({navigation}) {
+  const [deptData, setdeptData] = useState(null);
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [animating,setAnimating] = useState(true);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    const apiUrl = `https://centrale.onrender.com/users`;
+    const apiUrl = `https://centrale.onrender.com/stages`;
   
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => {
-  const studentUsers = data.filter(user => user.type === 'student' && user.deptId === studentData.deptId);
-  setStudentsData(studentUsers)})
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
+    fetch(apiUrl)
+      .then(response => response.json())
+   .then(data => setdeptData(data))
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+      });
       setTimeout(() => {
         setRefreshing(false);
       }, 2000);
     
-  }, [studentData]);
+  }, []);
+ 
 
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/users`;
+ const apiUrl = `https://centrale.onrender.com/stages`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => {
-  const studentUsers = data.filter(user => user.type === 'student' && user.deptId === studentData.deptId);
-  setStudentsData(studentUsers)})
+.then(data => setdeptData(data)).then(    setTimeout(() => {
+  setAnimating(false);
+}, 2000))
    .catch(error => {
      // Handle any errors that occur during the fetch
      console.error('Error:', error);
    });
 
-  },[studentData]);
-  useEffect(() => {
+  },[]);
 
 
-    // Fetch student data from AsyncStorage when the component mounts
-    AsyncStorage.getItem("studentData")
-      .then((data) => {
-        if (data) {
-          const parsedData = JSON.parse(data);
-          setStudentData(parsedData);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching student data from AsyncStorage:", error);
-      });
-  }, []);
-console.log(studentData)
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView
-     refreshControl={
+    refreshControl={
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
     }>
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('teacheraddnewuser')} style={styles.button2}>
-        <Text style={styles.text}>Add New Student</Text>
+      <Pressable onPress={() => navigation.navigate('addnewstage')} style={styles.button}>
+        <Text style={styles.text}>Add New Stage</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('teacherdeleteuser')} style={styles.button2}>
-        <Text style={styles.text}>Delete Student</Text>
+      <Pressable onPress={() => navigation.navigate('deletestage')}  style={styles.button2}>
+        <Text style={styles.text}>Delete Stage</Text>
       </Pressable>
       <View style={styles.spacetop}></View>
-      <Pressable onPress={() => navigation.navigate('teacherupdateuser')} style={styles.button2}>
-        <Text style={styles.text}>Update A Student</Text>
+      {/* <Pressable  style={styles.button2}>
+        <Text style={styles.text}>Update A Project</Text>
       </Pressable>
-      <View style={styles.spacetop}></View>
-
-{studentsData?.map((data) =>(
+      <View style={styles.spacetop}></View> */}
+      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
+{deptData?.map((data,index) =>(
         <>
-            <><View key={data.userId} style={styles.card}>
-            <Text>Id: {data.userId}</Text>
-            <Text>Name: {data.name}</Text>
-            <Text>Email: {data.email}</Text>
-            <Text>Password: {data.password}</Text>
-            <Text>Type:{data.type}</Text>
-            <View style={styles.spacetop}></View>
-        </View><View style={styles.spacetop}></View></>   
-        <View></View>
-        
-
+        <View key={data.stageId} style={styles.card}>
+          <Text>Id: {data.stageId}</Text>
+          <Text>Stage Name: {data.stageName}</Text>
+          <Text>Sort Order: {data.sortOrder}</Text>
+        </View>
+        <View style={styles.spacetop}></View>
         </>
       ))}
 
@@ -112,7 +90,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     paddingLeft: 50,
-    paddingRight: 30,
+    paddingRight: 50,
     paddingTop: 80,
     paddingBottom: 80,
     borderRadius: 20,
@@ -172,10 +150,10 @@ backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingHorizontal: 25,
     borderRadius: 50,
     elevation: 3,
-    backgroundColor: "#3734A9",
+    backgroundColor: "#E652FF",
   },
   button2: {
     alignItems: "center",

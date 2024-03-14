@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import CryptoJS from 'crypto-js';
 export default function TeacherUpdateUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
@@ -30,16 +31,14 @@ export default function TeacherUpdateUser({navigation}) {
       Alert.alert('Validation Error','Invalid email format');
       return;
     }
-    if (!password || password.length < 5 || password.length > 8) {
-      Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
-      return;
-    }
+
+
     const apiUrl = `https://centrale.onrender.com/user/update/id/${userId}`;
   
     const requestData = {
         name:name,
       email: email,
-      password: password,
+      password:password,
       type:'student'
     };
   
@@ -71,7 +70,7 @@ export default function TeacherUpdateUser({navigation}) {
           setStudentData(data);
           setName(data?.name);
           setEmail(data?.email);
-          setPassword(data?.password);
+          setPassword(data?.password)
         })
         .catch(error => {
           console.error('Error:', error);
@@ -91,7 +90,6 @@ export default function TeacherUpdateUser({navigation}) {
         <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
      <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
      <TextInput style={styles.input} value={email} onChangeText={text => setEmail(text)} placeholder="email"/>
-     <TextInput style={styles.input} value={password} onChangeText={text => setPassword(text)} placeholder="password"/>
      <View style={styles.spacetop}></View>
      <Pressable onPress={handleSubmit} style={styles.button2}>
         <Text style={styles.text}>Submit</Text>

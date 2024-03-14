@@ -69,7 +69,7 @@ export default function User({ navigation }) {
             {/* Data shown to teachers */}
             {studentData.type === "teacher" && (
               <>
-                <View style={styles.cardlayout}>
+                {/* <View style={styles.cardlayout}>
                   <Pressable onPress={() => navigation.navigate('chooseteam')}>
                     <View style={styles.card}>
                       <Text style={styles.cardtext}>Choose</Text>
@@ -83,7 +83,7 @@ export default function User({ navigation }) {
                       <Text style={styles.cardtext}>meeting</Text>
                     </View>
                   </Pressable>
-                </View>
+                </View> */}
                 <View style={styles.spacetop}></View>
                 <View style={styles.cardlayout}>
                   <Pressable onPress={() => navigation.navigate('uploadmarks')}>
@@ -132,15 +132,21 @@ export default function User({ navigation }) {
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
-                  <Pressable >
+                  <Pressable onPress={() => navigation.navigate('admindepartment')}>
                     <View style={styles.cardadmin2}>
                       <Text style={styles.cardtext}>Departments</Text>
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>
-                  <Pressable >
+                  <Pressable onPress={() => navigation.navigate('adminstage')}>
                     <View style={styles.cardadmin}>
                       <Text style={styles.cardtext}>Stages</Text>
+                    </View>
+                  </Pressable>
+                  <View style={styles.spacetop}></View>
+                  <Pressable onPress={() => navigation.navigate('adminprojectstage')}>
+                    <View style={styles.cardadmin2}>
+                      <Text style={styles.cardtext}>Project Stages</Text>
                     </View>
                   </Pressable>
                   <View style={styles.spacetop}></View>

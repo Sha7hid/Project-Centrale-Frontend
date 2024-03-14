@@ -2,122 +2,80 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+
 export default function Marks({ navigation }) {
   const [studentData, setStudentData] = useState(null);
-  const [MarkData, setMarkData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [animating,setAnimating] = useState(true);
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    if (studentData != null) {
-      const api = `https://centrale.onrender.com/mark/studentid/${studentData?.id}`;
+  const [markData, setMarkData] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-      fetch(api)
-        .then(response => response.json())
-        .then(data => setMarkData(data))
-        .catch(error => {
-          // Handle any errors that occur during the fetch
-          console.error('Error:', error);
-        }); }
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 2000);
-    
-  }, [studentData]);
-
-  useEffect(() => {
-    // Replace the URL with your actual API endpoint
-    if (studentData != null) {
-      const apiUrl = `https://centrale.onrender.com/mark/studentid/${studentData?.id}`;
-
-      fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => setMarkData(data))
-        .catch(error => {
-          // Handle any errors that occur during the fetch
-          console.error('Error:', error);
-        });
-      
+  const fetchMarkData = async () => {
+    try {
+      const apiUrl = `https://centrale.onrender.com/projectStageMarks/${studentData?.userId}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      setMarkData(data);
+    } catch (error) {
+      console.error('Error fetching mark data:', error);
     }
+  };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchMarkData();
+    setRefreshing(false);
+  };
 
-  }, [studentData]);
   useEffect(() => {
-    // Fetch student data from AsyncStorage when the component mounts
-    AsyncStorage.getItem("studentData")
-      .then((data) => {
+    const fetchStudentData = async () => {
+      try {
+        const data = await AsyncStorage.getItem("studentData");
         if (data) {
           const parsedData = JSON.parse(data);
           setStudentData(parsedData);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching student data from AsyncStorage:", error);
-      });
+      }
+    };
+    fetchStudentData();
   }, []);
-useEffect(() => {
-  if(MarkData){
-    setAnimating(false)
-  }
 
-},[MarkData])
-  console.log(MarkData)
+  useEffect(() => {
+    if (studentData) {
+      fetchMarkData();
+    }
+  }, [studentData]);
+
+  useEffect(() => {
+    if (markData) {
+      setLoading(false);
+    }
+  }, [markData]);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
-       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.container}>
-        <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
-          {MarkData ? <>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>Synopsis: {MarkData?.synopsis ? MarkData?.synopsis : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>Design: {MarkData?.design ? MarkData?.design : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>First Presentation: {MarkData?.first_presentation ? MarkData?.first_presentation : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>50% Coding: {MarkData?.fifty_percent_coding ? MarkData?.fifty_percent_coding : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>Second Presentation: {MarkData?.second_presentation ? MarkData?.second_presentation : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>100% Coding: {MarkData?.hundred_percent_coding ? MarkData?.hundred_percent_coding : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>Final Presentation: {MarkData?.final_presentation ? MarkData?.final_presentation : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>Report: {MarkData?.report ? MarkData?.report : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-            <View key={MarkData?.id} style={styles.card3}>
-              <Text style={styles.text}>Attendance: {MarkData?.attendance ? MarkData?.attendance : 0}</Text>
-            </View>
-            <View style={styles.spacetop}></View>
-          </> : <View></View>}
-
-
-          {/* Render your component with studentData */}
-
+          {loading ? (
+            <ActivityIndicator animating={loading} color={'white'} size={'large'} />
+          ) : markData && markData.success ? (
+            markData.projectStageMarks.map((item, index) => (
+              <><View key={index} style={styles.card3}>
+                <Text style={styles.text}>{item.stageName}: {item.marks != null ? item.marks : 'N/A'}</Text>
+              </View><View style={styles.spacetop}></View></>
+            ))
+          ) : (
+            <Text style={styles.text}>No marks available</Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   cardlayout: {
     marginTop: 45,

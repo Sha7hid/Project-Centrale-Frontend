@@ -41,30 +41,18 @@ export default function TeacherDeleteUser({navigation}) {
      
     fetch(apiUrl)
       .then(response => response.json())
-   .then(data => setStudentsData(data))
+   .then(data => {
+    const studentUsers = data.filter(user => user.type === 'student' && user.deptId === studentData.deptId);
+    setStudentsData(studentUsers)})
       .catch(error => {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
       });
    
-     },[]);
+     },[studentData]);
 
 
-     const fetchData = (studentId) => {
-      const apiUrl = `https://centrale.onrender.com/team/studentid/${studentId}`;
-      fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => setTeamData(data))
-        .catch(error => {
-          console.error('Error:', error);
-        });
-    };
-    
-    useEffect(() => {
-      if (studentData) {
-        fetchData(studentData.id);
-      }
-    }, [studentData]);
+
 useEffect(() => {
 // Fetch student data from AsyncStorage when the component mounts
 AsyncStorage.getItem("studentData")
@@ -78,12 +66,7 @@ AsyncStorage.getItem("studentData")
     console.error("Error fetching student data from AsyncStorage:", error);
   });
 }, []);
-const filteredData = studentsData?.filter((data) => {
-return (
-  data.type === 'student' &&
-  (data.id === TeamData?.studentId1 || data.id === TeamData?.studentId2 || data.id === TeamData?.studentId3)
-);
-});
+
 
   return (
     <View style={styles.container}>
@@ -95,8 +78,8 @@ return (
         onValueChange={(itemValue, itemIndex) => setUserId(itemValue)}
       >
         <Picker.Item label="Select a student" value={null} />
-        {filteredData?.map((student) => (
-          <Picker.Item key={student.id} label={student.name} value={student.id} />
+        {studentsData?.map((student) => (
+          <Picker.Item key={student.userId} label={student.name} value={student.userId} />
         ))}
       </Picker>
      <View style={styles.spacetop}></View>

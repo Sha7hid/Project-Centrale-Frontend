@@ -2,51 +2,81 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function DeleteMark({navigation}) {
-  const [userId, setUserId] = useState('');
-  const [success,setSuccess] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    setUserId('')
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 2000);
-    
-  }, []);
-  const showAlert = () =>{
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this mark?', [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {text: 'OK', onPress:handleDelete},
-      ])
-  }
-  const handleDelete = async () => {
-    if(!userId){
-      Alert.alert('Field Needed','Please fill in the mark Id')
-      return
-    }
-    const apiUrl = `https://centrale.onrender.com/projectStageMarks/${userId}`;
+import { Picker } from "@react-native-picker/picker";
+import CryptoJS from 'crypto-js';
+export default function AddNewDepartment({navigation}) {
 
-    fetch(apiUrl, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
+  const [departmentName, setDepartmentName] = useState('');
+  const [success,setSuccess] = useState(false);
+  const [error,setError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    setDepartmentName('');
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
+
+
+
+  const handleSubmit = () => {
+    if (!departmentName) {
+      Alert.alert('Field needed', 'Department Name should be entered');
+      return;
+    }
+  
+    // Fetch existing department names from the API
+    const apiUrl = 'https://centrale.onrender.com/departments';
+    fetch(apiUrl)
       .then(response => response.json())
-      .then(Alert.alert('🎊','Successfully Deleted Mark'))
+      .then(data => {
+        const existingDepartmentNames = data.map(department => department.departmentName);
+        if (existingDepartmentNames.includes(departmentName)) {
+          Alert.alert('Duplicate Department Name', 'Department name already exists. Please choose a different name.');
+        } else {
+          // If departmentName does not exist, proceed with submitting the form
+          submitForm();
+        }
+      })
       .catch(error => {
         // Handle any errors that occur during the fetch
-        console.error('Error:', error);
+        console.error('Error fetching department names:', error);
+        setError(true);
       });
       onRefresh()
   };
   
+  const submitForm = () => {
+    const apiUrl = 'https://centrale.onrender.com/departments';
+    const requestData = {
+      departmentName: departmentName
+    };
+  
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+      .then(response => response.json())
+      .then(() => {
+        setSuccess(true);
+        Alert.alert('🎊', 'Successfully Added Department');
+        onRefresh();
+      })
+      .catch(error => {
+        // Handle any errors that occur during the fetch
+        console.error('Error:', error);
+        setError(true);
+      });
+  };
+  
+
 //   useEffect(() => {
-//     // Fetch student data from AsyncStorage when the component mounts
 //     AsyncStorage.getItem("studentData")
 //       .then((data) => {
 //         if (data) {
@@ -57,27 +87,29 @@ export default function DeleteMark({navigation}) {
 //       .catch((error) => {
 //         console.error("Error fetching student data from AsyncStorage:", error);
 //       });
+//     fetchDepartments(); // Fetch departments when the component mounts
 //   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView
-     refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
-    <View style={styles.container}>
-        <Text style={styles.textstyles}>Enter the ID of the Mark to delete</Text>
-        <View style={styles.spacetop}></View>
-     <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
-     <View style={styles.spacetop}></View>
-     <Pressable onPress={showAlert} style={styles.button2}>
-        <Text style={styles.text}>Submit</Text>
-     </Pressable>
-    </View>
-    </ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        <View style={styles.container}>
+          <Text style={styles.textstyles}>Enter Details of the Department</Text>
+          <View style={styles.spacetop}></View>
+          <TextInput style={styles.input} value={departmentName} onChangeText={text => setDepartmentName(text)} placeholder="Department Name" />
+          <View style={styles.spacetop}></View>
+          <Pressable onPress={handleSubmit} style={styles.button2}>
+            <Text style={styles.text}>Submit</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   cardlayout: {
     marginTop: 45,
@@ -137,17 +169,27 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
+    marginBottom:10,
   },
   input: {
     backgroundColor:'#fff',
     textAlign:'center',
     height: 50,
     width:270,
+    margin: 12,
+    borderWidth: 1,
+    borderRadius:50,
+  },
+  input2:{
+    backgroundColor:'#fff',
+    textAlign:'center',
+    height: 50,
+    width:250,
     margin: 12,
     borderWidth: 1,
     borderRadius:50,
@@ -176,6 +218,13 @@ backgroundColor: "#fff",
     fontWeight: "bold",
     letterSpacing: 0.25,
     color: "white",
+  },
+  error:{
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "red",
   },
   space: {
     paddingLeft: 10,

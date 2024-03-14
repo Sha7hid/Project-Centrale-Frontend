@@ -10,6 +10,7 @@ export default function AddNewTeam({navigation}) {
   const [studentsData, setStudentsData] = useState(null);
   const [teacherId, setTeacherId] = useState(null);
   const [userIds, setUserIds] = useState([null]); // Initialize with one null value
+  const [departmentsData, setDepartmentsData] = useState(null); // Store department data
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
@@ -40,6 +41,18 @@ export default function AddNewTeam({navigation}) {
       Alert.alert('Selection needed', 'At least two students must be selected');
       return;
     }
+    const existingTeamNames = teamData?.map(team => team.teamName) || [];
+  const existingProjectNames = teamData?.map(team => team.projectName) || [];
+
+  if (existingTeamNames.includes(teamName)) {
+    Alert.alert('Duplicate Team Name', 'Team name already exists. Please choose a different name.');
+    return;
+  }
+
+  if (existingProjectNames.includes(projectName)) {
+    Alert.alert('Duplicate Project Name', 'Project name already exists. Please choose a different name.');
+    return;
+  }
     const allUserIds = [teacherId, ...userIds.filter(id => id)]; // Append teacherId to userIds array and filter out null values
     const apiUrl = 'https://centrale.onrender.com/create-project-team';
   
@@ -69,18 +82,40 @@ export default function AddNewTeam({navigation}) {
   };
   
   useEffect(() => {
-    // Fetch students data from the API
-    const apiUrl = `https://centrale.onrender.com/users`;
-     
-    fetch(apiUrl)
-      .then(response => response.json())
-      .then(data => setStudentsData(data))
-      .catch(error => {
+    const fetchData = async () => {
+      // Fetch students data from the API
+      const studentsUrl = `https://centrale.onrender.com/users`;
+      // Fetch teams data from the API
+      const teamsUrl = `https://centrale.onrender.com/project-teams`;
+      // Fetch departments data from the API
+      const departmentsUrl = `https://centrale.onrender.com/departments`; // Adjust the URL according to your API
+
+      try {
+        const [studentsResponse, teamsResponse, departmentsResponse] = await Promise.all([
+          fetch(studentsUrl),
+          fetch(teamsUrl),
+          fetch(departmentsUrl)
+        ]);
+  
+        const [studentsData, teamsData, departmentsData] = await Promise.all([
+          studentsResponse.json(),
+          teamsResponse.json(),
+          departmentsResponse.json()
+        ]);
+  
+        setStudentsData(studentsData);
+        setTeamData(teamsData);
+        setDepartmentsData(departmentsData); // Store department data
+      } catch (error) {
         // Handle any errors that occur during the fetch
         console.error('Error:', error);
-      });
+      }
+    };
+  
+    fetchData();
   }, []);
-
+  
+  console.log(teamData)
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -90,8 +125,8 @@ export default function AddNewTeam({navigation}) {
         <View style={styles.container}>
           <Text style={styles.textstyles}>Enter Details of the Team</Text>
           <View style={styles.spacetop}></View>
-          <TextInput style={styles.input} onChangeText={setTeamName} placeholder="Team Name"/>
-          <TextInput style={styles.input} onChangeText={setProjectName} placeholder="Project Name"/>
+          <TextInput style={styles.input} value={teamName} onChangeText={setTeamName} placeholder="Team Name"/>
+          <TextInput style={styles.input} value={projectName} onChangeText={setProjectName} placeholder="Project Name"/>
           <Picker
             style={styles.input}
             selectedValue={teacherId}
@@ -99,7 +134,7 @@ export default function AddNewTeam({navigation}) {
           >
             <Picker.Item label="Select Teacher" value={null} />
             {studentsData?.filter(user => user.type === 'teacher').map((user) => (
-              <Picker.Item key={user.userId} label={user.name} value={user.userId} />
+                <Picker.Item key={user.userId} label={`${user.name} - ${departmentsData && departmentsData.find(dept => dept.departmentId === user.deptId)?.departmentName}`} value={user.userId} />
             ))}
           </Picker>
           <View style={styles.spacetop}></View>
@@ -117,7 +152,8 @@ export default function AddNewTeam({navigation}) {
               >
                 <Picker.Item label={`Student ${index + 1}`} value={null} />
                 {studentsData?.filter(user => user.type === 'student').map((user) => (
-                  <Picker.Item key={user.userId} label={user.name} value={user.userId} />
+                <Picker.Item key={user.userId} label={`${user.name} - ${departmentsData && departmentsData.find(dept => dept.departmentId === user.deptId)?.departmentName}`} value={user.userId} />
+
                 ))}
               </Picker>
               {index > 0 && (

@@ -2,48 +2,32 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
-export default function AdminMarks({navigation}) {
-  const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [deleteResult, setDeleteResult] = useState(false);
-  const [studentsDetails, setStudentsDetails] = useState([]);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [animating,setAnimating] = useState(true);
-  const onRefresh = React.useCallback(async () => {
+export default function AdminMarks({ navigation }) {
+  const [studentsData, setStudentsData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [animating, setAnimating] = useState(true);
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    const apiUrl = `https://centrale.onrender.com/marks`;
-  
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setStudentsData(data))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 2000);
-    
-  }, []);
-  const fetchStudentDetails = async (studentId) => {
-    const apiUrl = `https://centrale.onrender.com/user/id/${studentId}`;
-  
     try {
-      const response = await fetch(apiUrl);
-      const studentDetails = await response.json();
-      return studentDetails;
+      const response = await fetch(`https://centrale.onrender.com/projectStageMarks`);
+      const data = await response.json();
+      setStudentsData(data?.projectStageMarks || []);
     } catch (error) {
-      console.error('Error fetching student details:', error);
-      return null;
+      console.error('Error fetching data:', error);
     }
-  };
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   useEffect(()=>{
  // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/marks`;
+ const apiUrl = `https://centrale.onrender.com/projectStageMarks`;
   
  fetch(apiUrl)
    .then(response => response.json())
-.then(data => setStudentsData(data)).then(  setTimeout(() => {
+.then(data => setStudentsData(data?.projectStageMarks)).then(  setTimeout(() => {
  setAnimating(false);
 }, 2000))
    .catch(error => {
@@ -67,15 +51,7 @@ export default function AdminMarks({navigation}) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
-  useEffect(() => {
-    const fetchData = async () => {
-      const detailsPromises = studentsData.map(data => fetchStudentDetails(data.studentid));
-      const details = await Promise.all(detailsPromises);
-      setStudentsDetails(details);
-    };
 
-    fetchData();
-  }, [studentsData]);
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView
@@ -98,20 +74,14 @@ export default function AdminMarks({navigation}) {
       <Text style={styles.text}>Look through to select the mark id</Text>
       <View style={styles.spacetop}></View>
       <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
-{studentsData?.map((data,index) =>(
+{studentsData && studentsData?.map((data,index) =>(
         <>
-        <View key={data.id} style={styles.card}>
-  <Text>Id: {data.id}</Text>
-  <Text>StudentName: {studentsDetails[index] ? studentsDetails[index].name : 'N/A'}</Text>
-  <Text>Synopsis: {data.synopsis? data.synopsis : 0}</Text>
-  <Text>Design: {data.design? data.design : 0}</Text>
-  <Text>First Presentation: {data.first_presentation? data.first_presentation : 0}</Text>
-  <Text>50% Coding: {data.fifty_percent_coding? data.fifty_percent_coding : 0}</Text>
-  <Text>Second Presentation: {data.second_presentation? data.second_presentation : 0}</Text>
-  <Text>100% Coding: {data.hundred_percent_coding? data.hundred_percent_coding : 0}</Text>
-  <Text>Final Presentation: {data.final_presentation? data.final_presentation : 0}</Text>
-  <Text>Report: {data.report? data.report : 0}</Text>
-  <Text>Attendance: {data.attendance? data.attendance : 0}</Text>
+        <View key={data.projectStageMarksId} style={styles.card}>
+  <Text>Id: {data.projectStageMarksId}</Text>
+<Text>Project Stage Id: {data.projectStageId}</Text>
+<Text>Marks: {data.marks}</Text>
+<Text>Student Name: {data.studentName} </Text>
+ <Text>Stage Name: {data.stageName}</Text>
           <View style={styles.spacetop}></View>
         </View>
         <View style={styles.spacetop}></View>

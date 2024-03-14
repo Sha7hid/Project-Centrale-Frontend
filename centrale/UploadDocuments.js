@@ -6,24 +6,9 @@ export default function UploadDocuments({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [studentsData, setStudentsData] = useState(null);
   const [deleteResult, setDeleteResult] = useState(false);
+  const [stageData, setStageData] = useState([]);
 
-
-  useEffect(()=>{
- // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/users`;
-  
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setStudentsData(data))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
-
-  },[]);
   useEffect(() => {
-
-
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
       .then((data) => {
@@ -37,6 +22,27 @@ export default function UploadDocuments({navigation}) {
       });
   }, []);
 
+  useEffect(() => {
+    // Fetch stage data associated with the user ID
+    const userId = studentData?.userId; // Replace 'your_user_id_here' with the actual user ID
+    fetchStageData(userId);
+  }, [studentData]);
+
+  const fetchStageData = async (userId) => {
+    try {
+      const apiUrl = `https://centrale.onrender.com/project-stages/${userId}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      setStageData(data);
+    } catch (error) {
+      console.error('Error fetching stage data:', error);
+    }
+  };
+
+  const handleStagePress = (stageId) => {
+    navigation.navigate('StageDetails', { stageId });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
@@ -45,26 +51,11 @@ export default function UploadDocuments({navigation}) {
         <View style={styles.spacetop}></View>
         <Text style={styles.text}>Submit your google drive urls of the files</Text>
         <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addsynopsis')}>
-        <Text style={styles.text}>Synopsis</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('adddesign')}>
-        <Text style={styles.text}>Design</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase1')}>
-        <Text style={styles.text}>Code 50%</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addcodephase2')}>
-        <Text style={styles.text}>Code 100%</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
-      <Pressable style={styles.button2} onPress={() => navigation.navigate('addreport')}>
-        <Text style={styles.text}>Report</Text>
-      </Pressable>
-      <View style={styles.spacetop}></View>
+      {stageData.map((stage, index) => (
+        <Pressable key={index} style={styles.button2} onPress={() => handleStagePress(stage.stageId)}>
+          <Text style={styles.text}>{stage.stageName}</Text>
+        </Pressable>
+      ))}
     </View>
     </ScrollView>
       </SafeAreaView>
@@ -77,6 +68,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  cardlayoutadmin: {
+    marginTop: 45,
+    flexDirection: "col",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   card: {
     backgroundColor: "#fff",
     paddingLeft: 50,
@@ -84,10 +81,28 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingBottom: 80,
     borderRadius: 20,
+    textAlign: "center"
+  },
+  cardadmin: {
+    backgroundColor: "#fff",
+    paddingLeft: 80,
+    paddingRight: 80,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 20,
     textAlign: "center",
   },
-  card2:{
-backgroundColor: "#fff",
+  cardadmin2: {
+    backgroundColor: "#fff",
+    paddingLeft: 50,
+    paddingRight:50,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 20,
+    textAlign: "center",
+  },
+  card2: {
+    backgroundColor: "#fff",
     paddingLeft: 50,
     paddingRight: 50,
     paddingTop: 80,
@@ -147,23 +162,15 @@ backgroundColor: "#fff",
   button2: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 25,
-    paddingHorizontal: 42,
-    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 32,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: "#E652FF",
-  },
-  buttonred:{
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 50,
-    elevation: 3,
-    backgroundColor: "#FF0000",
+    marginBottom:10
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
     lineHeight: 21,
     fontWeight: "bold",
     letterSpacing: 0.25,

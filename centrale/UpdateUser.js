@@ -3,6 +3,7 @@ import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, Sty
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
 import { Picker } from "@react-native-picker/picker";
+import CryptoJS from 'crypto-js';
 export default function UpdateUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [userId, setUserId] = useState('');
@@ -36,12 +37,13 @@ export default function UpdateUser({navigation}) {
       Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
       return;
     }
+    const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
     const apiUrl = `https://centrale.onrender.com/user/update/id/${userId}`;
   
     const requestData = {
         name:name,
       email: email,
-      password: password,
+      password: hashedPassword,
       type:type
     };
   
@@ -90,6 +92,11 @@ export default function UpdateUser({navigation}) {
     }>
     <View style={styles.container}>
         <Text style={styles.textstyles}>Enter Details of the User</Text>
+        <View style={styles.spacetop}></View>
+        <View style={styles.containernone}>
+        <Text style={styles.text}>Only update user if password needs to be changed</Text>
+        </View>
+      
         <View style={styles.spacetop}></View>
         <TextInput style={styles.input} value={userId} onChangeText={text => setUserId(text)} placeholder="id"/>
      <TextInput style={styles.input} value={name} onChangeText={text => setName(text)} placeholder="name"/>
@@ -155,6 +162,10 @@ backgroundColor: "#fff",
     backgroundColor: "#ffff",
     paddingTop: 20,
     paddingBottom: 80,
+    paddingLeft: 45,
+    paddingRight: 45,
+  },
+  containernone:{
     paddingLeft: 45,
     paddingRight: 45,
   },

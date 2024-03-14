@@ -1,53 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Pressable,RefreshControl,SafeAreaView,ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View, RefreshControl } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-export default function TeacherMarks({navigation}) {
+
+export default function TeacherMarks({ navigation }) {
   const [studentData, setStudentData] = useState(null);
-  const [studentsData, setStudentsData] = useState(null);
-  const [markdata,setMarkdata] = useState(null)
-  const [deleteResult, setDeleteResult] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [animating,setAnimating] = useState(true);
-  const onRefresh = React.useCallback(() => {
+  const [markData, setMarkData] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [filteredMarkData, setFilteredMarkData] = useState(null);
+
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
   }, []);
-  useEffect(()=>{
- // Replace the URL with your actual API endpoint
- const apiUrl = `https://centrale.onrender.com/marks`;
-  
- fetch(apiUrl)
-   .then(response => response.json())
-.then(data => setMarkdata(data)).then( setTimeout(() => {
-  setAnimating(false);
-}, 2000))
-   .catch(error => {
-     // Handle any errors that occur during the fetch
-     console.error('Error:', error);
-   });
 
-  },[]);
-  useEffect(()=>{
-    // Replace the URL with your actual API endpoint
-    const apiUrl = `https://centrale.onrender.com/users`;
-     
-    fetch(apiUrl)
-      .then(response => response.json())
-   .then(data => setStudentsData(data))
-      .catch(error => {
-        // Handle any errors that occur during the fetch
-        console.error('Error:', error);
-      });
-   
-     },[]);
   useEffect(() => {
-
-
+    // Fetch mark data from the API
+    fetchMarksData();
     // Fetch student data from AsyncStorage when the component mounts
     AsyncStorage.getItem("studentData")
       .then((data) => {
@@ -60,83 +33,111 @@ export default function TeacherMarks({navigation}) {
         console.error("Error fetching student data from AsyncStorage:", error);
       });
   }, []);
-  const getStudentName = (studentId) => {
-    if (studentsData) {
-      const student = studentsData.find((student) => student.id === studentId);
-      return student ? student?.name : "Unknown Student";
+
+  useEffect(() => {
+    if (markData && !filteredMarkData) {
+      filterMarkDataByDeptId();
     }
-    return "Loading Student Data...";
+    setLoading(false);
+  }, [markData, filteredMarkData]);
+  
+  const filterMarkDataByDeptId = () => {
+    if (!markData) return;
+    const filteredMarks = markData.projectStageMarks.filter(mark => mark.deptId === studentData.deptId);
+    setFilteredMarkData({ ...markData, projectStageMarks: filteredMarks });
   };
+
+
+  const fetchMarksData = async () => {
+    try {
+      const apiUrl = `https://centrale.onrender.com/projectStageMarks/all`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      setMarkData(data);
+    } catch (error) {
+      console.error('Error fetching mark data:', error);
+    }
+  };
+
   const exportToExcel = async () => {
     try {
-      // Create a CSV string from the markdata including student names
-      const csvData = markdata.map(data => {
-        const studentName = getStudentName(data.studentid);
-        // Rearrange the order of fields to have student name as the first column
-        return Object.values({ studentName, ...data }).join(',');
-      });
-  
-      // Create a CSV header including "Student Name" field
-      const header = Object.keys({ studentName: '', ...markdata[0] }).join(',');
-  
+      if (!markData) return;
+
+      // Group mark data by student name
+      const groupedData = groupMarksByStudentName(markData.projectStageMarks,studentData.deptId);
+
+      // Create CSV string for each student
+      const csvData = Object.entries(groupedData).map(([studentName, stages]) => {
+        const row = stages.map(stage => `${stage.stageName}: ${stage.marks != null ? stage.marks : 'N/A'}`).join(', ');
+        return `${studentName}, ${row}`;
+      }).join('\n');
+
+      // Define CSV header
+      const header = 'Student Name, Marks';
+
       // Combine header and CSV data
-      const csv = `${header}\n${csvData.join('\n')}`;
-  
-      // Define the file path
+      const csv = `${header}\n${csvData}`;
+
+      // Define file path
       const path = FileSystem.documentDirectory + 'student_marks.csv';
-  
+
       // Write CSV data to file
       await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
-  
+
       // Share the file
       await Sharing.shareAsync(path, { mimeType: 'text/csv', dialogTitle: 'Share this CSV file' });
-  
     } catch (error) {
       console.error('Error exporting data:', error);
     }
   };
-  
-  
+
+  // Function to group mark data by student name
+  const groupMarksByStudentName = (markData, deptId) => {
+    return markData.reduce((acc, curr) => {
+      const studentName = curr.userName;
+      // Check if the mark's department ID matches the specified deptId
+      if (curr.deptId === deptId) {
+        if (!acc[studentName]) {
+          acc[studentName] = [];
+        }
+        acc[studentName].push({ stageName: curr.stageName, marks: curr.marks });
+      }
+      return acc;
+    }, {});
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView
-    refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
-    <View style={styles.container}>
-      <Text style={styles.textstyles}>Student Marks</Text>
-      <View style={styles.spacetop}></View>
-     <Pressable onPress={exportToExcel} style={styles.button2}>
-      <Text style={styles.text}>Export To Excel</Text>
-     </Pressable>
-      <View style={styles.spacetop}></View>
-      <ActivityIndicator animating={animating} color={'white'} size={'large'}/>
-{markdata?.map((data) =>(
-        <>
-        <View key={data.id} style={styles.card}>
-          <Text>Id: {data.id}</Text>
-          <Text>Student Name: {getStudentName(data.studentid)}</Text>
-          <Text >Synopsis: {data.synopsis? data.synopsis: 0}</Text>
-          <Text >Design: {data.design? data.design: 0}</Text>
-          <Text>First Presentation: {data?.first_presentation ? data?.first_presentation : 0}</Text>
-          <Text>50% Coding: {data?.fifty_percent_coding ? data?.fifty_percent_coding : 0}</Text>
-          <Text>Second Presentation: {data?.second_presentation ? data?.second_presentation : 0}</Text>
-          <Text>100% Coding: {data?.hundred_percent_coding ? data?.hundred_percent_coding : 0}</Text>
-          <Text>Final Presentation: {data?.final_presentation ? data?.final_presentation : 0}</Text>
-          <Text>Report: {data?.report ? data?.report : 0}</Text>
-          <Text>Attendance: {data?.attendance ? data?.attendance : 0}</Text>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.container}>
+          <Text style={styles.textstyles}>Student Marks</Text>
           <View style={styles.spacetop}></View>
-        </View>
+          <Pressable onPress={exportToExcel} style={styles.button2}>
+            <Text style={styles.text}>Export To Excel</Text>
+          </Pressable>
+          <View style={styles.spacetop}></View>
+          <ActivityIndicator animating={loading} color={'white'} size={'large'} />
+          {markData && markData.success ? (
+  Object.entries(groupMarksByStudentName(markData.projectStageMarks,studentData.deptId)).map(([studentName, stages], index) => {
+  
+    return (
+      <View key={index} style={styles.card}>
+        <Text style={styles.text2}>Student Name: {studentName}</Text>
+        {stages.map((stage, idx) => (
+          <Text key={idx}>{stage.stageName}: {stage.marks != null ? stage.marks : 'N/A'}</Text>
+        ))}
         <View style={styles.spacetop}></View>
-        </>
-      ))}
-
-     
-      {/* Render your component with studentData */}
-   
-    </View>
-    </ScrollView>
-      </SafeAreaView>
+      </View>
+    );
+  })
+) : (
+  <Text style={styles.text}>No marks available</Text>
+)}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -154,7 +155,8 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     borderRadius: 20,
     textAlign: "center",
-    width:'90%'
+    width:'90%',
+    marginBottom:20
   },
   card2:{
 backgroundColor: "#fff",
@@ -238,6 +240,13 @@ backgroundColor: "#fff",
     fontWeight: "bold",
     letterSpacing: 0.25,
     color: "white",
+  },
+  text2: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "black",
   },
   space: {
     paddingLeft: 10,

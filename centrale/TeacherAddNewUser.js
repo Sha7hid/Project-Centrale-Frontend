@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback } from "react";
+import CryptoJS from 'crypto-js';
 export default function TeacherAddNewUser({navigation}) {
   const [studentData, setStudentData] = useState(null);
   const [name, setName] = useState('');
@@ -40,6 +41,7 @@ export default function TeacherAddNewUser({navigation}) {
         Alert.alert('Validation Error', 'Password must be between 5 and 8 characters');
         return;
       }
+      const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
     const checkUrl = `https://centrale.onrender.com/user/email/${email}`;
   
     fetch(checkUrl)
@@ -58,8 +60,9 @@ export default function TeacherAddNewUser({navigation}) {
           const requestData = {
             name: name,
             email: email,
-            password: password,
-            type: 'student'
+            password: hashedPassword,
+            type: 'student',
+            deptId:studentData.deptId
           };
   
           fetch(apiUrl, {
