@@ -1,4 +1,4 @@
-# Project-Centrale-Frontend
+# Project-Centrale
 A React Native project management app
 
 ## Launch Screen
